@@ -3,11 +3,11 @@ package ysql
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
-
-	"github.com/pkg/errors"
 
 	"github.com/mitchellh/mapstructure"
 
@@ -33,6 +33,8 @@ type YugabyteConnectionProducer struct {
 	db                    *sql.DB
 	sync.Mutex
 }
+
+var ErrNotInitialized = errors.New("connection has not been initialized")
 
 func (c *YugabyteConnectionProducer) Initialize(ctx context.Context, conf map[string]interface{}, verifyConnection bool) error {
 	_, err := c.Init(ctx, conf, verifyConnection)
@@ -91,7 +93,7 @@ func (c *YugabyteConnectionProducer) Init(ctx context.Context, conf map[string]i
 
 func (c *YugabyteConnectionProducer) Connection(ctx context.Context) (interface{}, error) {
 	if !c.Initialized {
-		return nil, errors.New("not initialized")
+		return nil, ErrNotInitialized
 	}
 
 	// If we already have a DB, test it and return
@@ -104,19 +106,32 @@ func (c *YugabyteConnectionProducer) Connection(ctx context.Context) (interface{
 		c.db.Close()
 	}
 
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		c.Host, c.Port, c.Username, c.Password, c.DbName)
+	//attempt to make connection
+	conn := c.ConnectionURL
 
-	if len(c.ConnectionURL) != 0 {
-		psqlInfo = c.ConnectionURL
+	// Ensure timezone is set to UTC for all the connections
+	if strings.Contains(conn, "?") {
+		conn += "&timezone=UTC"
+	} else {
+		conn += "?timezone=UTC"
+	}
+
+	// Ensure a reasonable application_name is set
+	if !strings.Contains(conn, "application_name") {
+		conn += "&application_name=vault"
 	}
 
 	var err error
-	c.db, err = sql.Open("postgres", psqlInfo)
+	c.db, err = sql.Open("postgres", conn)
 	if err != nil {
 		return nil, err
 	}
+
+	// Set some connection pool settings. We don't need much of this,
+	// since the request rate shouldn't be high.
+	c.db.SetMaxOpenConns(c.MaxOpenConnections)
+	c.db.SetMaxIdleConns(c.MaxIdleConnections)
+	c.db.SetConnMaxLifetime(c.maxConnectionLifetime)
 
 	return c.db, nil
 }

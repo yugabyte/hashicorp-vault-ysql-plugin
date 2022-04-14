@@ -25,7 +25,7 @@ ALTER ROLE "{{name}}" VALID UNTIL '{{expiration}}';
 	defaultChangePasswordStatement = `
 ALTER ROLE "{{username}}" WITH PASSWORD '{{password}}';
 `
-	expirationFormat = "2006-01-02 15:04:05-0700"
+	expirationFormat = "2006-01-02 15:04:05-0700" // "2006-01-02T15:04:05Z07:00" "2006-01-02 15:04:05-0700"
 
 	defaultUserNameTemplate = `{{ printf "v-%s-%s-%s-%s" (.DisplayName | truncate 8) (.RoleName | truncate 8) (random 20) (unix_time) | truncate 63 }}`
 )
@@ -118,11 +118,10 @@ func (ydb *ysql) NewUser(ctx context.Context, req dbplugin.NewUserRequest) (dbpl
 	defer ydb.Unlock()
 
 	username, err := ydb.usernameProducer.Generate(req.UsernameConfig)
-	fmt.Println(username) //Debug the test
 	if err != nil {
 		return dbplugin.NewUserResponse{}, err
 	}
-
+	fmt.Println("2006-01-02T15:04:05Z07:00 is used")
 	expirationStr := req.Expiration.Format(expirationFormat)
 
 	db, err := ydb.getConnection(ctx)
@@ -138,7 +137,6 @@ func (ydb *ysql) NewUser(ctx context.Context, req dbplugin.NewUserRequest) (dbpl
 
 	for _, stmt := range req.Statements.Commands {
 		if containsMultilineStatement(stmt) {
-			fmt.Println("Multiline Statements:: ")
 			// Execute it as-is.
 			m := map[string]string{
 				"name":       username,
@@ -279,6 +277,7 @@ func (ydb *ysql) changeUserExpiration(ctx context.Context, username string, chan
 		tx.Rollback()
 	}()
 
+	fmt.Println("2006-01-02 15:04:05Z07:00 is used")
 	expirationStr := changeExp.NewExpiration.Format(expirationFormat)
 
 	for _, stmt := range renewStmts {
