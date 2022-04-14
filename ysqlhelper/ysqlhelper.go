@@ -5,25 +5,24 @@ import (
 	"database/sql"
 	"fmt"
 	"net/url"
-	"os"
 	"testing"
 
 	"github.com/hashicorp/vault/helper/testhelpers/docker"
 )
 
 func PrepareTestContainer(t *testing.T, version string) (func(), string) {
-	if os.Getenv("PG_URL") != "" {
-		return func() {}, os.Getenv("PG_URL")
-	}
 
 	if version == "" {
-		version = "11"
+		version = "latest"
 	}
+
 	runner, err := docker.NewServiceRunner(docker.RunOptions{
-		ImageRepo: "postgres",
-		ImageTag:  version,
-		Env:       []string{"POSTGRES_PASSWORD=secret", "POSTGRES_DB=database"},
-		Ports:     []string{"5432/tcp"},
+		ImageRepo:     "yugabytedb/yugabyte",
+		Cmd:           []string{"./bin/yugabyted", "start", "--daemon=false"},
+		ImageTag:      version,
+		Env:           []string{"YSQL_DB=database", "YSQL_PASSWORD=secret", "POSTGRES_DB=database", "POSTGRES_PASSWORD=secret"},
+		Ports:         []string{"5433/tcp"},
+		ContainerName: "yugabyte",
 	})
 	if err != nil {
 		t.Fatalf("Could not start docker Postgres: %s", err)
@@ -40,7 +39,7 @@ func PrepareTestContainer(t *testing.T, version string) (func(), string) {
 func connectPostgres(ctx context.Context, host string, port int) (docker.ServiceConfig, error) {
 	u := url.URL{
 		Scheme:   "postgres",
-		User:     url.UserPassword("postgres", "secret"),
+		User:     url.UserPassword("yugabyte", "secret"),
 		Host:     fmt.Sprintf("%s:%d", host, port),
 		Path:     "postgres",
 		RawQuery: "sslmode=disable",

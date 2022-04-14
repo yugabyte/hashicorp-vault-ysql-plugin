@@ -272,7 +272,7 @@ func TestYsql_NewUser(t *testing.T) {
 			test.credsAssertion(t, db.ConnectionURL, resp.Username, test.req.Password)
 
 			// Ensure that the role doesn't expire immediately
-			time.Sleep(2 * time.Second)
+			time.Sleep(1 * time.Second)
 
 			test.credsAssertion(t, db.ConnectionURL, resp.Username, test.req.Password)
 		})
@@ -530,7 +530,7 @@ func TestDeleteUser(t *testing.T) {
 		"no statements": {
 			revokeStmts: nil,
 			expectErr:   false,
-			// Wait for a short time before failing because postgres takes a moment to finish deleting the user
+			// Wait for a short time before failing because sgres takes a moment to finish deleting the user
 			credsAssertion: waitUntilCredsDoNotExist(2 * time.Second),
 		},
 		"statements with name": {
@@ -636,7 +636,7 @@ func assertCredsExist(t testing.TB, connURL, username, password string) {
 
 func assertCredsDoNotExist(t testing.TB, connURL, username, password string) {
 	t.Helper()
-	err := testCredsExist(t, connURL, "AsdsaSas", "sasasS")
+	err := testCredsExist(t, connURL, username, password)
 	if err == nil {
 		t.Fatalf("user should not exist but does")
 	}
@@ -676,8 +676,12 @@ func assertCredsExistAfter(timeout time.Duration) credsAssertion {
 func testCredsExist(t testing.TB, connURL, username, password string) error {
 	t.Helper()
 	// Log in with the new creds
-	connURL = strings.Replace(connURL, "postgres:secret", fmt.Sprintf("%s:%s", username, password), 1)
+	//fmtln("Connection String", connURL)
+	connURL = strings.Replace(connURL, "yugabyte:secret", fmt.Sprintf("%s:%s", username, password), 1)
+	//fmt.Println("Connection String", connURL)
+
 	db, err := sql.Open("postgres", connURL)
+	//fmt.Println("Connection Tried")
 	if err != nil {
 		return err
 	}
