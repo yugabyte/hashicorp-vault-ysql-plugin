@@ -269,7 +269,6 @@ func TestYsql_NewUser(t *testing.T) {
 			if !test.expectErr && err != nil {
 				t.Fatalf("no error expected, got: %s", err)
 			}
-
 			test.credsAssertion(t, db.ConnectionURL, resp.Username, test.req.Password)
 
 			// Ensure that the role doesn't expire immediately
@@ -637,7 +636,7 @@ func assertCredsExist(t testing.TB, connURL, username, password string) {
 
 func assertCredsDoNotExist(t testing.TB, connURL, username, password string) {
 	t.Helper()
-	err := testCredsExist(t, connURL, username, password)
+	err := testCredsExist(t, connURL, "AsdsaSas", "sasasS")
 	if err == nil {
 		t.Fatalf("user should not exist but does")
 	}
