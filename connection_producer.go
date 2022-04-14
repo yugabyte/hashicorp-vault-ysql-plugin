@@ -9,7 +9,6 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/mitchellh/mapstructure"
 
 	_ "github.com/lib/pq"
@@ -63,6 +62,8 @@ func (c *YugabyteConnectionProducer) Init(ctx context.Context, conf map[string]i
 	}
 
 	switch {
+	case len(c.ConnectionURL) != 0:
+		break //As the connection will be produced through it
 	case len(c.Host) == 0:
 		return nil, fmt.Errorf("host cannot be empty")
 	case len(c.Username) == 0:
@@ -77,11 +78,11 @@ func (c *YugabyteConnectionProducer) Init(ctx context.Context, conf map[string]i
 
 	if verifyConnection {
 		if _, err := c.Connection(ctx); err != nil {
-			return nil, errwrap.Wrapf("error verifying connection: {{err}}", err)
+			return nil, fmt.Errorf("error verifying connection: %s", err)
 		}
 
 		if err := c.db.PingContext(ctx); err != nil {
-			return nil, errwrap.Wrapf("error verifying connection: {{err}}", err)
+			return nil, fmt.Errorf("error verifying connection: %s", err)
 		}
 	}
 
@@ -106,6 +107,10 @@ func (c *YugabyteConnectionProducer) Connection(ctx context.Context) (interface{
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		c.Host, c.Port, c.Username, c.Password, c.DbName)
+
+	if len(c.ConnectionURL) != 0 {
+		psqlInfo = c.ConnectionURL
+	}
 
 	var err error
 	c.db, err = sql.Open("postgres", psqlInfo)

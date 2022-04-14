@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	ysqlhelper "github.com/yugabyte/hashicorp-vault-ysql-plugin/ysqlhelper"
+
 	dbplugin "github.com/hashicorp/vault/sdk/database/dbplugin/v5"
 	dbtesting "github.com/hashicorp/vault/sdk/database/dbplugin/v5/testing"
 	"github.com/hashicorp/vault/sdk/helper/template"
@@ -15,7 +17,7 @@ import (
 )
 
 func getysql(t *testing.T, options map[string]interface{}) (*ysql, func()) {
-	cleanup, connURL := ysql_helper.PrepareTestContainer(t, "latest")
+	cleanup, connURL := ysqlhelper.PrepareTestContainer(t, "latest")
 
 	fmt.Println(connURL)
 
@@ -40,7 +42,7 @@ func getysql(t *testing.T, options map[string]interface{}) (*ysql, func()) {
 	return db, cleanup
 }
 
-func Testysql_Initialize(t *testing.T) {
+func TestYsql_Initialize(t *testing.T) {
 	db, cleanup := getysql(t, map[string]interface{}{
 		"max_open_connections": 5,
 	})
@@ -51,7 +53,7 @@ func Testysql_Initialize(t *testing.T) {
 	}
 }
 
-func Testysql_InitializeWithStringVals(t *testing.T) {
+func TestYsql_InitializeWithStringVals(t *testing.T) {
 	db, cleanup := getysql(t, map[string]interface{}{
 		"max_open_connections": "5",
 	})
@@ -62,7 +64,7 @@ func Testysql_InitializeWithStringVals(t *testing.T) {
 	}
 }
 
-func Testysql_NewUser(t *testing.T) {
+func TestYsql_NewUser(t *testing.T) {
 	type testCase struct {
 		req            dbplugin.NewUserRequest
 		expectErr      bool
@@ -868,7 +870,7 @@ func TestUsernameGeneration(t *testing.T) {
 }
 
 func TestNewUser_CustomUsername(t *testing.T) {
-	cleanup, connURL := ysql.PrepareTestContainer(t, "13.4-buster")
+	cleanup, connURL := ysqlhelper.PrepareTestContainer(t, "13.4-buster")
 	defer cleanup()
 
 	type testCase struct {

@@ -27,7 +27,7 @@ ALTER ROLE "{{username}}" WITH PASSWORD '{{password}}';
 `
 	expirationFormat = "2006-01-02 15:04:05-0700"
 
-	defaultUserNameTemplate = `V_{{.DisplayName | uppercase | truncate 64}}_{{.RoleName | uppercase | truncate 64}}_{{random 20 | uppercase}}_{{unix_time}}`
+	defaultUserNameTemplate = `{{ printf "v-%s-%s-%s-%s" (.DisplayName | truncate 8) (.RoleName | truncate 8) (random 20) (unix_time) | truncate 63 }}`
 )
 
 var (
@@ -118,6 +118,7 @@ func (ydb *ysql) NewUser(ctx context.Context, req dbplugin.NewUserRequest) (dbpl
 	defer ydb.Unlock()
 
 	username, err := ydb.usernameProducer.Generate(req.UsernameConfig)
+	fmt.Println(username) //Debug the test
 	if err != nil {
 		return dbplugin.NewUserResponse{}, err
 	}
@@ -137,6 +138,7 @@ func (ydb *ysql) NewUser(ctx context.Context, req dbplugin.NewUserRequest) (dbpl
 
 	for _, stmt := range req.Statements.Commands {
 		if containsMultilineStatement(stmt) {
+			fmt.Println("Multiline Statements:: ")
 			// Execute it as-is.
 			m := map[string]string{
 				"name":       username,
