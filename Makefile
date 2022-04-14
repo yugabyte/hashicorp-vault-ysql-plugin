@@ -1,6 +1,6 @@
 GOARCH = amd64
 
-BUILD_DIR = <BUILD-dir>
+BUILD_DIR = /home/jayantanand/code/work/hashicorp/plugin_bin
 
 UNAME = $(shell uname -s)
 
@@ -31,7 +31,7 @@ enable:
 
 	vault write database/config/yugabytedb \
     plugin_name=ysql-plugin  host="127.0.0.1" \
-    port=5433 \
+    port=54905 \
     username="yugabyte" \
     password="yugabyte" \
     db="yugabyte" \
