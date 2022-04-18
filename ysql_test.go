@@ -532,7 +532,7 @@ func TestDeleteUser(t *testing.T) {
 			revokeStmts: nil,
 			expectErr:   false,
 			// Wait for a short time before failing because sgres takes a moment to finish deleting the user
-			credsAssertion: waitUntilCredsDoNotExist(2 * time.Second),
+			credsAssertion: waitUntilCredsDoNotExist(20 * time.Second),
 		},
 		"statements with name": {
 			revokeStmts: []string{`

@@ -29,9 +29,16 @@ start-dev:
 enable:
 	vault secrets enable database
 
+	 vault write database/config/postgresql \
+     plugin_name=postgresql-database-plugin \
+     connection_url="postgresql://{{username}}:{{password}}@localhost:5433/postgres?sslmode=disable" \
+     allowed_roles=readonly \
+     username="yugabyte" \
+    password="yugabyte" \
+
 	vault write database/config/yugabytedb \
     plugin_name=ysql-plugin  host="127.0.0.1" \
-    port=54905 \
+    port=5433 \
     username="yugabyte" \
     password="yugabyte" \
     db="yugabyte" \
@@ -39,8 +46,7 @@ enable:
 
 	vault write database/roles/my-first-role \
     db_name=yugabytedb \
-    creation_statements="CREATE ROLE \"{{username}}\" WITH PASSWORD '{{password}}' \
-    NOINHERIT LOGIN; \
+    creation_statements="CREATE ROLE \"{{username}}\" WITH PASSWORD '{{password}}' NOINHERIT LOGIN; \
        GRANT ALL ON DATABASE \"yugabyte\" TO \"{{username}}\";" \
     default_ttl="1h" \
     max_ttl="24h"

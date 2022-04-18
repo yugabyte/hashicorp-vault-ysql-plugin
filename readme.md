@@ -5,8 +5,8 @@
 Admin's terminal to configure the database
 ```sh
 #   Make sure that the go is added to the path
-$   export GOPATH=$HOME/go
-$   export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+   export GOPATH=$HOME/go
+   export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 
 #   Clone and go to the database plugin directory
 $   git clone https://github.com/yugabyte/hashicorp-vault-ysql-plugin
@@ -14,8 +14,8 @@ $   git clone https://github.com/yugabyte/hashicorp-vault-ysql-plugin
 $   go build -o <build dir>/ysql-plugin  cmd/ysql-plugin/main.go
 
 #   Add the VAULT_ADDR and VAULT_TOKEN
-$   export VAULT_ADDR="http://localhost:8200"
-$   export VAULT_TOKEN="root"
+  export VAULT_ADDR="http://localhost:8200"
+   export VAULT_TOKEN="root"
 
 ```
 
@@ -89,3 +89,6 @@ docker  exec -it <docker id>  bash
 ##  Error with the revoke statement::
 -   `failed to revoke lease: lease_id=database/creds/my-first-role/MML1XWMjcJKXBlk47HHs6HrZ error="failed to revoke entry: resp: (*logical.Response)(nil) err: unable to delete user: rpc error: code = Internal desc = unable to delete user: pq: role \"V_TOKEN_MY-FIRST-ROLE_HDZVDJXNAEYNDNWVW2IU_1649353280\" cannot be dropped because some objects depend on it"`
 
+
+
+rm  /home/jayantanand/code/work/hashicorp/plugin_bin/ysql-plugin
