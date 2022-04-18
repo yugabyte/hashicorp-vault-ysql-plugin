@@ -29,13 +29,6 @@ start-dev:
 enable:
 	vault secrets enable database
 
-	 vault write database/config/postgresql \
-     plugin_name=postgresql-database-plugin \
-     connection_url="postgresql://{{username}}:{{password}}@localhost:5433/postgres?sslmode=disable" \
-     allowed_roles=readonly \
-     username="yugabyte" \
-    password="yugabyte" \
-
 	vault write database/config/yugabytedb \
     plugin_name=ysql-plugin  host="127.0.0.1" \
     port=5433 \

@@ -371,12 +371,13 @@ func (ydb *ysql) defaultDeleteUser(ctx context.Context, username string) error {
 		return err
 	}
 	defer stmt.Close()
-
+	fmt.Println("Ok")
 	rows, err := stmt.QueryContext(ctx, username)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
+	fmt.Println("Ok here -- ")
 
 	const initialNumRevocations = 16
 	revocationStmts := make([]string, 0, initialNumRevocations)

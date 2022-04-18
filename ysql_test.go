@@ -529,10 +529,10 @@ func TestDeleteUser(t *testing.T) {
 
 	tests := map[string]testCase{
 		"no statements": {
-			revokeStmts: nil,
+			revokeStmts: []string{},
 			expectErr:   false,
 			// Wait for a short time before failing because sgres takes a moment to finish deleting the user
-			credsAssertion: waitUntilCredsDoNotExist(20 * time.Second),
+			credsAssertion: waitUntilCredsDoNotExist(60 * time.Second),
 		},
 		"statements with name": {
 			revokeStmts: []string{`
@@ -580,7 +580,7 @@ func TestDeleteUser(t *testing.T) {
 					Commands: []string{createAdminUser},
 				},
 				Password:   password,
-				Expiration: time.Now().Add(2 * time.Second),
+				Expiration: time.Now().Add(100 * time.Second),
 			}
 			createResp := dbtesting.AssertNewUser(t, db, createReq)
 
