@@ -19,8 +19,6 @@ import (
 func getysql(t *testing.T, options map[string]interface{}) (*ysql, func()) {
 	cleanup, connURL := ysqlhelper.PrepareTestContainer(t, "latest")
 
-	fmt.Println(connURL)
-
 	connectionDetails := map[string]interface{}{
 		"connection_url": connURL,
 	}
@@ -439,6 +437,7 @@ func TestUpdateUser_Expiration(t *testing.T) {
 			}
 			createResp := dbtesting.AssertNewUser(t, db, createReq)
 
+			fmt.Println("initialExpiration  ::  ", initialExpiration)
 			assertCredsExist(t, db.ConnectionURL, createResp.Username, password)
 
 			actualExpiration := getExpiration(t, db, createResp.Username)
@@ -512,10 +511,12 @@ func getExpiration(t testing.TB, db *ysql, username string) time.Time {
 	if rawExp == "" {
 		return time.Time{} // No expiration
 	}
-	exp, err := time.Parse(time.RFC3339, rawExp)
+
+	exp, err := time.Parse("2006-01-02 15:04:05Z07", rawExp) //time.RFC3339
 	if err != nil {
 		t.Fatalf("Failed to parse expiration %q: %s", rawExp, err)
 	}
+
 	return exp
 }
 
@@ -676,12 +677,10 @@ func assertCredsExistAfter(timeout time.Duration) credsAssertion {
 func testCredsExist(t testing.TB, connURL, username, password string) error {
 	t.Helper()
 	// Log in with the new creds
-	//fmtln("Connection String", connURL)
 	connURL = strings.Replace(connURL, "yugabyte:secret", fmt.Sprintf("%s:%s", username, password), 1)
-	//fmt.Println("Connection String", connURL)
 
 	db, err := sql.Open("postgres", connURL)
-	//fmt.Println("Connection Tried")
+
 	if err != nil {
 		return err
 	}

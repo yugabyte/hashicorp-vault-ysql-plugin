@@ -25,7 +25,7 @@ ALTER ROLE "{{name}}" VALID UNTIL '{{expiration}}';
 	defaultChangePasswordStatement = `
 ALTER ROLE "{{username}}" WITH PASSWORD '{{password}}';
 `
-	expirationFormat = "2006-01-02 15:04:05-0700" // "2006-01-02T15:04:05Z07:00" "2006-01-02 15:04:05-0700"
+	expirationFormat = "2006-01-02T15:04:05Z07:00" // "2006-01-02 15:04:05-0700"
 
 	defaultUserNameTemplate = `{{ printf "v-%s-%s-%s-%s" (.DisplayName | truncate 8) (.RoleName | truncate 8) (random 20) (unix_time) | truncate 63 }}`
 )
@@ -121,7 +121,7 @@ func (ydb *ysql) NewUser(ctx context.Context, req dbplugin.NewUserRequest) (dbpl
 	if err != nil {
 		return dbplugin.NewUserResponse{}, err
 	}
-	fmt.Println("2006-01-02T15:04:05Z07:00 is used")
+	// fmt.Println("2006-01-02T15:04:05Z07:00 is used")
 	expirationStr := req.Expiration.Format(expirationFormat)
 
 	db, err := ydb.getConnection(ctx)
@@ -277,7 +277,7 @@ func (ydb *ysql) changeUserExpiration(ctx context.Context, username string, chan
 		tx.Rollback()
 	}()
 
-	fmt.Println("2006-01-02 15:04:05Z07:00 is used")
+	//fmt.Println("2006-01-02 15:04:05Z07:00 is used")
 	expirationStr := changeExp.NewExpiration.Format(expirationFormat)
 
 	for _, stmt := range renewStmts {
@@ -350,7 +350,7 @@ func (ydb *ysql) defaultDeleteUser(ctx context.Context, username string) error {
 	if err != nil {
 		return err
 	}
-
+	fmt.Println("Default Statement called ")
 	// Check if the role exists
 	var exists bool
 	err = db.QueryRowContext(ctx, "SELECT exists (SELECT rolname FROM pg_roles WHERE rolname=$1);", username).Scan(&exists)
