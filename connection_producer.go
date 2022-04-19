@@ -3,19 +3,17 @@ package ysql
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
-
-	"github.com/hashicorp/errwrap"
 	"github.com/mitchellh/mapstructure"
 
 	_ "github.com/lib/pq"
 )
 
-// YugabyteConnectionProducer implements ConnectionProducer and provides a generic producer for most sql databases
+// YugabyteConnectionProducer implements ConnectionProducer and provides a generic producer for most yuhgabyte databases
 type YugabyteConnectionProducer struct {
 	ConnectionURL            string      `json:"connection_url" mapstructure:"connection_url" structs:"connection_url"`
 	MaxOpenConnections       int         `json:"max_open_connections" mapstructure:"max_open_connections" structs:"max_open_connections"`
@@ -34,6 +32,8 @@ type YugabyteConnectionProducer struct {
 	db                    *sql.DB
 	sync.Mutex
 }
+
+var ErrNotInitialized = errors.New("connection has not been initialized")
 
 func (c *YugabyteConnectionProducer) Initialize(ctx context.Context, conf map[string]interface{}, verifyConnection bool) error {
 	_, err := c.Init(ctx, conf, verifyConnection)
@@ -63,6 +63,8 @@ func (c *YugabyteConnectionProducer) Init(ctx context.Context, conf map[string]i
 	}
 
 	switch {
+	case len(c.ConnectionURL) != 0:
+		break //As the connection will be produced through it
 	case len(c.Host) == 0:
 		return nil, fmt.Errorf("host cannot be empty")
 	case len(c.Username) == 0:
@@ -77,11 +79,11 @@ func (c *YugabyteConnectionProducer) Init(ctx context.Context, conf map[string]i
 
 	if verifyConnection {
 		if _, err := c.Connection(ctx); err != nil {
-			return nil, errwrap.Wrapf("error verifying connection: {{err}}", err)
+			return nil, fmt.Errorf("error verifying connection: %s", err)
 		}
 
 		if err := c.db.PingContext(ctx); err != nil {
-			return nil, errwrap.Wrapf("error verifying connection: {{err}}", err)
+			return nil, fmt.Errorf("error verifying connection: %s", err)
 		}
 	}
 
@@ -90,7 +92,7 @@ func (c *YugabyteConnectionProducer) Init(ctx context.Context, conf map[string]i
 
 func (c *YugabyteConnectionProducer) Connection(ctx context.Context) (interface{}, error) {
 	if !c.Initialized {
-		return nil, errors.New("not initialized")
+		return nil, ErrNotInitialized
 	}
 
 	// If we already have a DB, test it and return
@@ -103,12 +105,16 @@ func (c *YugabyteConnectionProducer) Connection(ctx context.Context) (interface{
 		c.db.Close()
 	}
 
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		c.Host, c.Port, c.Username, c.Password, c.DbName)
+	conn := fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=disable", c.Host, c.Port, c.Username, c.Password, c.DbName)
 
+	if len(c.ConnectionURL) != 0 {
+		conn = c.ConnectionURL
+	}
+
+	//attempt to make connection
 	var err error
-	c.db, err = sql.Open("postgres", psqlInfo)
+	c.db, err = sql.Open("postgres", conn)
 	if err != nil {
 		return nil, err
 	}

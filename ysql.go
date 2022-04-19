@@ -25,9 +25,9 @@ ALTER ROLE "{{name}}" VALID UNTIL '{{expiration}}';
 	defaultChangePasswordStatement = `
 ALTER ROLE "{{username}}" WITH PASSWORD '{{password}}';
 `
-	expirationFormat = "2006-01-02 15:04:05-0700"
+	expirationFormat = "2006-01-02T15:04:05Z07:00" // "2006-01-02 15:04:05-0700"
 
-	defaultUserNameTemplate = `V_{{.DisplayName | uppercase | truncate 64}}_{{.RoleName | uppercase | truncate 64}}_{{random 20 | uppercase}}_{{unix_time}}`
+	defaultUserNameTemplate = `{{ printf "v-%s-%s-%s-%s" (.DisplayName | truncate 8) (.RoleName | truncate 8) (random 20) (unix_time) | truncate 63 }}`
 )
 
 var (
@@ -367,13 +367,14 @@ func (ydb *ysql) defaultDeleteUser(ctx context.Context, username string) error {
 	// we want to remove as much access as possible
 	stmt, err := db.PrepareContext(ctx, "SELECT DISTINCT table_schema FROM information_schema.role_column_grants WHERE grantee=$1;")
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to prepare context : %w", err)
 	}
+
 	defer stmt.Close()
 
 	rows, err := stmt.QueryContext(ctx, username)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to execute query: %w ", err)
 	}
 	defer rows.Close()
 

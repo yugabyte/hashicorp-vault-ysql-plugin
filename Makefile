@@ -1,6 +1,6 @@
 GOARCH = amd64
 
-BUILD_DIR = <BUILD-dir>
+BUILD_DIR = /home/jayantanand/code/work/hashicorp/plugin_bin
 
 UNAME = $(shell uname -s)
 
@@ -39,8 +39,7 @@ enable:
 
 	vault write database/roles/my-first-role \
     db_name=yugabytedb \
-    creation_statements="CREATE ROLE \"{{username}}\" WITH PASSWORD '{{password}}' \
-    NOINHERIT LOGIN; \
+    creation_statements="CREATE ROLE \"{{username}}\" WITH PASSWORD '{{password}}' NOINHERIT LOGIN; \
        GRANT ALL ON DATABASE \"yugabyte\" TO \"{{username}}\";" \
     default_ttl="1h" \
     max_ttl="24h"
@@ -48,6 +47,10 @@ enable:
 
 clean:
 	rm -f $(BUILD_DIR)/ysql-plugin
+
+test:
+	go test github.com/yugabyte/hashicorp-vault-ysql-plugin
+
 
 fmt:
 	go fmt $$(go list ./...)
