@@ -22,7 +22,7 @@ In this example, a client is requesting a database credential. Vault connects to
 
 Using Dynamic Secrets means we don’t have to be concerned about them having the shared PEM when a developer or operator leaves the organization. It also gives us a better break glass procedure should these credentials leak, as the credentials are localized to an individual resource reducing the attack vector, and the credentials are also issued with a time to live, meaning that Vault will automatically revoke them after a predetermined duration. In addition to this, by leveraging Vault Auth and Dynamic Secrets, you also gain full access logs directly tieing a SSH session to an individual user.
 
-![ alt text for screen readers](https://www.datocms-assets.com/2885/1519774324-dynamic-secret-img-001.jpeg?fit=max&q=80&w=2500 source: HashiCorp)
+![ alt text for screen readers source: HashiCorp](https://www.datocms-assets.com/2885/1519774324-dynamic-secret-img-001.jpeg?fit=max&q=80&w=2500)
 
 ##  Ysql-plugin for Hashicorp Vault:
 -   ysql-plugin provides APIs for using the HashiCorp Vault's Dynamic Secrets for the yugabyteDB.
@@ -32,7 +32,7 @@ Using Dynamic Secrets means we don’t have to be concerned about them having th
     -   Mangae lease related to the yugabyteDB(ysql) i.e. enabling `lease lookup` , `lease renew` and `lease revoke` for yugabyteDB (ysql) while using vault.
 -   Why seperate plugin for yugabyteDB(ysql):
    -    Yugabyte go driver can be used for connecting with the database.
-        This will allow us to use the smart features, providing a high tolerance to failures.
+        This will allow us to use the smart features, providing a high tolerance towards failures.
         
 
 ##  Before using the vault follow the below steps:
