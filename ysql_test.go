@@ -532,7 +532,7 @@ func TestDeleteUser(t *testing.T) {
 			revokeStmts: []string{},
 			expectErr:   false,
 			// Wait for a short time before failing because sgres takes a moment to finish deleting the user
-			credsAssertion: waitUntilCredsDoNotExist(60 * time.Second),
+			credsAssertion: waitUntilCredsDoNotExist(2 * time.Second),
 		},
 		"statements with name": {
 			revokeStmts: []string{`
@@ -580,7 +580,7 @@ func TestDeleteUser(t *testing.T) {
 					Commands: []string{createAdminUser},
 				},
 				Password:   password,
-				Expiration: time.Now().Add(100 * time.Second),
+				Expiration: time.Now().Add(2 * time.Second),
 			}
 			createResp := dbtesting.AssertNewUser(t, db, createReq)
 
@@ -593,7 +593,7 @@ func TestDeleteUser(t *testing.T) {
 				},
 			}
 
-			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), 50*time.Second)
 			defer cancel()
 
 			_, err := db.DeleteUser(ctx, deleteReq)
@@ -872,7 +872,7 @@ func TestUsernameGeneration(t *testing.T) {
 }
 
 func TestNewUser_CustomUsername(t *testing.T) {
-	cleanup, connURL := ysqlhelper.PrepareTestContainer(t, "13.4-buster")
+	cleanup, connURL := ysqlhelper.PrepareTestContainer(t, "latest")
 	defer cleanup()
 
 	type testCase struct {

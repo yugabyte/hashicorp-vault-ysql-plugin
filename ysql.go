@@ -121,7 +121,7 @@ func (ydb *ysql) NewUser(ctx context.Context, req dbplugin.NewUserRequest) (dbpl
 	if err != nil {
 		return dbplugin.NewUserResponse{}, err
 	}
-	// fmt.Println("2006-01-02T15:04:05Z07:00 is used")
+
 	expirationStr := req.Expiration.Format(expirationFormat)
 
 	db, err := ydb.getConnection(ctx)
@@ -277,7 +277,6 @@ func (ydb *ysql) changeUserExpiration(ctx context.Context, username string, chan
 		tx.Rollback()
 	}()
 
-	//fmt.Println("2006-01-02 15:04:05Z07:00 is used")
 	expirationStr := changeExp.NewExpiration.Format(expirationFormat)
 
 	for _, stmt := range renewStmts {
@@ -350,7 +349,7 @@ func (ydb *ysql) defaultDeleteUser(ctx context.Context, username string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("Default Statement called ")
+
 	// Check if the role exists
 	var exists bool
 	err = db.QueryRowContext(ctx, "SELECT exists (SELECT rolname FROM pg_roles WHERE rolname=$1);", username).Scan(&exists)
@@ -368,16 +367,16 @@ func (ydb *ysql) defaultDeleteUser(ctx context.Context, username string) error {
 	// we want to remove as much access as possible
 	stmt, err := db.PrepareContext(ctx, "SELECT DISTINCT table_schema FROM information_schema.role_column_grants WHERE grantee=$1;")
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to prepare context : %w", err)
 	}
+
 	defer stmt.Close()
-	fmt.Println("Ok")
+
 	rows, err := stmt.QueryContext(ctx, username)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to execute query: %w ", err)
 	}
 	defer rows.Close()
-	fmt.Println("Ok here -- ")
 
 	const initialNumRevocations = 16
 	revocationStmts := make([]string, 0, initialNumRevocations)

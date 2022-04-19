@@ -31,7 +31,7 @@ Using Dynamic Secrets means we don’t have to be concerned about them having th
     -   Mangae lease related to the yugabyteDB(ysql) i.e. enabling `lease lookup` , `lease renew` and `lease revoke` for yugabyteDB (ysql) while using vault.
 -   Why seperate plugin for yugabyteDB(ysql):
     -   YugabyteDB offers certain facilities like:  
-        -   calability
+        -   scalability
         -   high tolerance to failures
         -   globally-distributed deployments
         By using a seperate the plugin for yugabyte, one will be able to take leverage of these facilities.
@@ -129,18 +129,3 @@ $  vault lease renew   <leaseid>
 ```sh
 $  vault lease revoke  <leaseid>
 ```
-
-##  Completion matrix
-|API/TASK|Status|
-|-|-|
-| Initialize the plugin|✅|
-| Create User |✅ |
-| Delete User|✅|
-| Update User|✅|
-| Make File|✅|
-| Create User -test|✅|
-| Delete User -test| |
-| Update User -test|✅|
-| Blog| |
-| Add the smart driver's feature|   |
-| Test these features   |   |

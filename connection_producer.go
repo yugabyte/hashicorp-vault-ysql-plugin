@@ -13,7 +13,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// YugabyteConnectionProducer implements ConnectionProducer and provides a generic producer for most sql databases
+// YugabyteConnectionProducer implements ConnectionProducer and provides a generic producer for most yuhgabyte databases
 type YugabyteConnectionProducer struct {
 	ConnectionURL            string      `json:"connection_url" mapstructure:"connection_url" structs:"connection_url"`
 	MaxOpenConnections       int         `json:"max_open_connections" mapstructure:"max_open_connections" structs:"max_open_connections"`
