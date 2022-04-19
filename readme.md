@@ -9,6 +9,7 @@ Monolithic SQL databases offer SQL and low-latency reads but neither have abilit
 Distributed NoSQL databases offer read performance, high availability and write scalability but give up on SQL features such as relational data modeling and ACID transactions.
 
 Read more about YugabyteDB in our [Docs](https://docs.yugabyte.com/preview/faq/general/).
+
 ##  About HashiCorp Vault:
 HashiCorp Vault is designed to help organizations manage access to secrets and transmit them safely within an organization. 
 Secrets are defined as any form of sensitive credentials that need to be tightly controlled and monitored and can be used to unlock sensitive information. 
@@ -21,21 +22,18 @@ In this example, a client is requesting a database credential. Vault connects to
 
 Using Dynamic Secrets means we don’t have to be concerned about them having the shared PEM when a developer or operator leaves the organization. It also gives us a better break glass procedure should these credentials leak, as the credentials are localized to an individual resource reducing the attack vector, and the credentials are also issued with a time to live, meaning that Vault will automatically revoke them after a predetermined duration. In addition to this, by leveraging Vault Auth and Dynamic Secrets, you also gain full access logs directly tieing a SSH session to an individual user.
 
-![ alt text for screen readers](https://www.datocms-assets.com/2885/1519774324-dynamic-secret-img-001.jpeg?fit=max&q=80&w=2500)
+![ alt text for screen readers](https://www.datocms-assets.com/2885/1519774324-dynamic-secret-img-001.jpeg?fit=max&q=80&w=2500 source: HashiCorp)
 
-##  Ysql-plugin for hashicorp Vault:
+##  Ysql-plugin for Hashicorp Vault:
 -   ysql-plugin provides APIs for using the HashiCorp Vault's Dynamic Secrets for the yugabyteDB.
 -   The APIs that can be used are as follows:  
     -   Add yugabyteDB to the manage secrets i.e. enabling `write database` for yugabyteDB(ysql) while using vault.
     -   To create new users i.e. enabling `write` roles and `read` roles commands for yugabyteDB(ysql) while using vault.
     -   Mangae lease related to the yugabyteDB(ysql) i.e. enabling `lease lookup` , `lease renew` and `lease revoke` for yugabyteDB (ysql) while using vault.
 -   Why seperate plugin for yugabyteDB(ysql):
-    -   YugabyteDB offers certain facilities like:  
-        -   scalability
-        -   high tolerance to failures
-        -   globally-distributed deployments
-        By using a seperate the plugin for yugabyte, one will be able to take leverage of these facilities.
-    -   Incorporation of smart driver features will increase the performance.
+   -    Yugabyte go driver can be used for connecting with the database.
+        This will allow us to use the smart features, providing a high tolerance to failures.
+        
 
 ##  Before using the vault follow the below steps:
 -   Make sure that the go is added to the path
@@ -97,7 +95,7 @@ $ vault write database/config/yugabytedb plugin_name=ysql-plugin  \
 
 	vault write database/config/yugabytedb \
     plugin_name=ysql-plugin \
-    connection_url="yugabyte://{{username}}:{{password}}@localhost:5433/yugabyte?sslmode=disable" \
+    connection_url="postgres://{{username}}:{{password}}@localhost:5433/yugabyte?sslmode=disable" \
     allowed_roles="*" \
     username="yugabyte" \
     password="yugabyte" \
@@ -129,3 +127,25 @@ $  vault lease renew   <leaseid>
 ```sh
 $  vault lease revoke  <leaseid>
 ```
+
+##  For testing:
+go test can be used for testing the ysql-plugin
+Use:: `go test github.com/yugabyte/hashicorp-vault-ysql-plugin`
+For individual cases
+-   For Initialize:
+    `go test -run ^TestYsql_Initialize$ github.com/yugabyte/hashicorp-vault-ysql-plugin`
+-   For Create User:
+    `go test -run ^TestYsql_NewUser$ github.com/yugabyte/hashicorp-vault-ysql-plugin`
+-   For Update User Password:
+    `go test -run ^TestUpdateUser_Password$ github.com/yugabyte/hashicorp-vault-ysql-plugin`
+-   For Update User Expiration:
+    `go test -run ^TestUpdateUser_Expiration$ github.com/yugabyte/hashicorp-vault-ysql-plugin`
+-   For Delete User:
+    `go test -run ^TestDeleteUser$ github.com/yugabyte/hashicorp-vault-ysql-plugin`
+
+### How to use the Makefile:
+-   Set the BUILD_DIR in the Makefile
+-   For building the plugin, registering it and running it in development mode use `make`.
+-   For enabling the plugin and creating a basic role named 'my-first-role' use `make enable`.
+-   To read user  use `vault read database/creds/my-first-role`.
+-   Use `make clean` to remove the build and `make test` to test the plugin. 

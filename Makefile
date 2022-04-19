@@ -48,6 +48,10 @@ enable:
 clean:
 	rm -f $(BUILD_DIR)/ysql-plugin
 
+test:
+	go test github.com/yugabyte/hashicorp-vault-ysql-plugin
+
+
 fmt:
 	go fmt $$(go list ./...)
 
