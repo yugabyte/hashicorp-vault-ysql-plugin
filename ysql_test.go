@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 	"time"
-
+    "os"
 	ysqlhelper "github.com/yugabyte/hashicorp-vault-ysql-plugin/ysqlhelper"
 
 	dbplugin "github.com/hashicorp/vault/sdk/database/dbplugin/v5"
@@ -17,7 +17,12 @@ import (
 )
 
 func getysql(t *testing.T, options map[string]interface{}) (*ysql, func()) {
-	cleanup, connURL := ysqlhelper.PrepareTestContainer(t, "latest")
+	YBDB_IMAGE := os.Getenv("YBDB_IMAGE")
+	if YBDB_IMAGE == "" {
+		YBDB_IMAGE = "latest"
+	}
+        
+    cleanup, connURL := ysqlhelper.PrepareTestContainer(t,YBDB_IMAGE)
 
 	connectionDetails := map[string]interface{}{
 		"connection_url": connURL,
