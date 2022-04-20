@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/hashicorp/vault/sdk/database/helper/dbutil"
 	"github.com/mitchellh/mapstructure"
 
 	_ "github.com/lib/pq"
@@ -72,6 +73,19 @@ func (c *YugabyteConnectionProducer) Init(ctx context.Context, conf map[string]i
 	case len(c.Password) == 0:
 		return nil, fmt.Errorf("password cannot be empty")
 	}
+
+	// Don't escape special characters for MySQL password
+	// Also don't escape special characters for the username and password if
+	// the disable_escaping parameter is set to true
+	username := c.Username
+	password := c.Password
+
+	// QueryHelper doesn't do any SQL escaping, but if it starts to do so
+	// then maybe we won't be able to use it to do URL substitution any more.
+	c.ConnectionURL = dbutil.QueryHelper(c.ConnectionURL, map[string]string{
+		"username": username,
+		"password": password,
+	})
 
 	// Set initialized to true at this point since all fields are set,
 	// and the connection can be established at a later time.

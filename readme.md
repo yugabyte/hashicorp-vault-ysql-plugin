@@ -98,7 +98,7 @@ $ vault write database/config/yugabytedb plugin_name=ysql-plugin  \
     connection_url="postgres://{{username}}:{{password}}@localhost:5433/yugabyte?sslmode=disable" \
     allowed_roles="*" \
     username="yugabyte" \
-    password="yugabyte" \
+    password="yugabyte" 
 ```
 
 -   Write the role 
