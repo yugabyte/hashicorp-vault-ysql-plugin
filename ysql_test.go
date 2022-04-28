@@ -4,11 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	ysqlhelper "github.com/yugabyte/hashicorp-vault-ysql-plugin/ysqlhelper"
+	"os"
 	"strings"
 	"testing"
 	"time"
-    "os"
-	ysqlhelper "github.com/yugabyte/hashicorp-vault-ysql-plugin/ysqlhelper"
 
 	dbplugin "github.com/hashicorp/vault/sdk/database/dbplugin/v5"
 	dbtesting "github.com/hashicorp/vault/sdk/database/dbplugin/v5/testing"
@@ -21,8 +21,8 @@ func getysql(t *testing.T, options map[string]interface{}) (*ysql, func()) {
 	if YBDB_IMAGE == "" {
 		YBDB_IMAGE = "latest"
 	}
-        
-    cleanup, connURL := ysqlhelper.PrepareTestContainer(t,YBDB_IMAGE)
+
+	cleanup, connURL := ysqlhelper.PrepareTestContainer(t, YBDB_IMAGE)
 
 	connectionDetails := map[string]interface{}{
 		"connection_url": connURL,
@@ -442,7 +442,6 @@ func TestUpdateUser_Expiration(t *testing.T) {
 			}
 			createResp := dbtesting.AssertNewUser(t, db, createReq)
 
-			fmt.Println("initialExpiration  ::  ", initialExpiration)
 			assertCredsExist(t, db.ConnectionURL, createResp.Username, password)
 
 			actualExpiration := getExpiration(t, db, createResp.Username)
