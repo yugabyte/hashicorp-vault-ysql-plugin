@@ -1,41 +1,22 @@
 #!/bin/sh
 
-#   Set the log directory
-if [ "$LOGFILE" == "" ] 
-then
-export LOGFILE=$(pwd)/hashicorp_plugin.log
-fi
+#   Create a directory named as test_plugin
+mkdir test_plugin
+cd test_plugin
 
-#   Clone if not their
-git clone  https://github.com/yugabyte/hashicorp-vault-ysql-plugin.git 
-if [ $? -eq 0 ]; then
-    export DeleteDir=true
-else
-    echo Unable to Clone the Dir
-fi
-
-cd hashicorp-vault-ysql-plugin 
+#   Clone the repositories required
+##  Yugabytedb plugin for HashiCorp Vault
+git clone  https://github.com/yugabyte/hashicorp-vault-ysql-plugin.git  && cd hashicorp-vault-ysql-plugin
 
 #   Run the test
-go test github.com/yugabyte/hashicorp-vault-ysql-plugin  >> $LOGFILE
-
-grep -q "FAIL" "$LOGFILE"; 
+export LOGDATA=$(go test)
+grep -q "FAIL" <<< "$LOGDATA";
 if [ $? -eq 0 ] 
 then 
-echo "Test Failed" 
-echo "For more detail see the log files $LOGFILE" 
+echo -e "Test Failed \n" $LOGDATA
 else 
-echo "Test Passed"
-rm $LOGFILE
+echo -e "Test Passed \n" $LOGDATA
 fi
 
-#   Delete Dir
-if [ "$DeleteDir" == "true"  ]
-then 
-cd ..  && rm -rf hashicorp-vault-ysql-plugin
-else 
-cd ..
-fi
-
-export DeleteDir
-export LOGFILE 
+#   Delete the test repository
+cd ../.. && rm -rf test_plugin
