@@ -9,7 +9,7 @@ require (
 	github.com/hashicorp/vault/sdk v0.4.2-0.20220321211954-d7083ad326db
 	github.com/lib/pq v1.10.5
 	github.com/mitchellh/mapstructure v1.4.3
-	github.com/pkg/errors v0.9.1
+	github.com/pkg/errors v0.9.1 // indirect
 )
 
 require (
