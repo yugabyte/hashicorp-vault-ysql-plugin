@@ -13,9 +13,9 @@ export LOGDATA=$(go test)
 grep -q "FAIL" <<< "$LOGDATA";
 if [ $? -eq 0 ] 
 then 
-echo -e "Test Failed \n" $LOGDATA
+echo -e "Test Failed \n $LOGDATA"
 else 
-echo -e "Test Passed \n" $LOGDATA
+echo -e "Test Passed \n $LOGDATA"
 fi
 
 #   Delete the test repository
