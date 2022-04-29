@@ -28,7 +28,7 @@ func PrepareTestContainer(t *testing.T, version string) (func(), string) {
 		t.Fatalf("Could not start docker Postgres: %s", err)
 	}
 
-	svc, err := runner.StartService(context.Background(), connectPostgres)
+	svc, err := runner.StartService(context.Background(), connectYugabyte)
 	if err != nil {
 		t.Fatalf("Could not start docker Postgres: %s", err)
 	}
@@ -36,7 +36,7 @@ func PrepareTestContainer(t *testing.T, version string) (func(), string) {
 	return svc.Cleanup, svc.Config.URL().String()
 }
 
-func connectPostgres(ctx context.Context, host string, port int) (docker.ServiceConfig, error) {
+func connectYugabyte(ctx context.Context, host string, port int) (docker.ServiceConfig, error) {
 	u := url.URL{
 		Scheme:   "postgres",
 		User:     url.UserPassword("yugabyte", "secret"),
