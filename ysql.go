@@ -14,7 +14,8 @@ import (
 	"github.com/hashicorp/vault/sdk/helper/dbtxn"
 	"github.com/hashicorp/vault/sdk/helper/strutil"
 	"github.com/hashicorp/vault/sdk/helper/template"
-	"github.com/lib/pq"
+
+	_ "github.com/yugabyte/pgx/v4"
 )
 
 const (
@@ -389,27 +390,27 @@ func (ydb *ysql) defaultDeleteUser(ctx context.Context, username string) error {
 		}
 		revocationStmts = append(revocationStmts, fmt.Sprintf(
 			`REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA %s FROM %s;`,
-			pq.QuoteIdentifier(schema),
-			pq.QuoteIdentifier(username)))
+			QuoteIdentifier(schema),
+			QuoteIdentifier(username)))
 
 		revocationStmts = append(revocationStmts, fmt.Sprintf(
 			`REVOKE ALL PRIVILEGES  ON SCHEMA %s FROM %s;`,
-			pq.QuoteIdentifier(schema),
-			pq.QuoteIdentifier(username)))
+			QuoteIdentifier(schema),
+			QuoteIdentifier(username)))
 	}
 
 	// for good measure, revoke all privileges and usage on schema public
 	revocationStmts = append(revocationStmts, fmt.Sprintf(
 		`REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM %s;`,
-		pq.QuoteIdentifier(username)))
+		QuoteIdentifier(username)))
 
 	revocationStmts = append(revocationStmts, fmt.Sprintf(
 		"REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM %s;",
-		pq.QuoteIdentifier(username)))
+		QuoteIdentifier(username)))
 
 	revocationStmts = append(revocationStmts, fmt.Sprintf(
 		"REVOKE ALL PRIVILEGES  ON SCHEMA public FROM %s;",
-		pq.QuoteIdentifier(username)))
+		QuoteIdentifier(username)))
 
 	// get the current database name so we can issue a REVOKE CONNECT for
 	// this username
@@ -421,8 +422,8 @@ func (ydb *ysql) defaultDeleteUser(ctx context.Context, username string) error {
 	if dbname.Valid {
 		revocationStmts = append(revocationStmts, fmt.Sprintf(
 			`REVOKE ALL PRIVILEGES ON DATABASE %s FROM %s;`,
-			pq.QuoteIdentifier(dbname.String),
-			pq.QuoteIdentifier(username)))
+			QuoteIdentifier(dbname.String),
+			QuoteIdentifier(username)))
 	}
 
 	// again, here, we do not stop on error, as we want to remove as
@@ -444,7 +445,7 @@ func (ydb *ysql) defaultDeleteUser(ctx context.Context, username string) error {
 
 	// Drop this user
 	stmt, err = db.PrepareContext(ctx, fmt.Sprintf(
-		`DROP ROLE IF EXISTS %s;`, pq.QuoteIdentifier(username)))
+		`DROP ROLE IF EXISTS %s;`, QuoteIdentifier(username)))
 	if err != nil {
 		return err
 	}
@@ -510,4 +511,9 @@ func (db *ysql) getConnection(ctx context.Context) (*sql.DB, error) {
 	}
 
 	return conn.(*sql.DB), nil
+}
+
+func QuoteIdentifier(input string) (output string) {
+	output = `"` + strings.Replace(input, `"`, `""`, -1) + `"`
+	return
 }

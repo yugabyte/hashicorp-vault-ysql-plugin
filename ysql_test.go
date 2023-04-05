@@ -4,16 +4,19 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	ysqlhelper "github.com/yugabyte/hashicorp-vault-ysql-plugin/ysqlhelper"
 	"os"
 	"strings"
 	"testing"
 	"time"
 
+	ysqlhelper "github.com/yugabyte/hashicorp-vault-ysql-plugin/ysqlhelper"
+
 	dbplugin "github.com/hashicorp/vault/sdk/database/dbplugin/v5"
 	dbtesting "github.com/hashicorp/vault/sdk/database/dbplugin/v5/testing"
 	"github.com/hashicorp/vault/sdk/helper/template"
 	"github.com/stretchr/testify/require"
+
+	_ "github.com/yugabyte/pgx/v4/stdlib"
 )
 
 func getysql(t *testing.T, options map[string]interface{}) (*ysql, func()) {
@@ -683,7 +686,7 @@ func testCredsExist(t testing.TB, connURL, username, password string) error {
 	// Log in with the new creds
 	connURL = strings.Replace(connURL, "yugabyte:secret", fmt.Sprintf("%s:%s", username, password), 1)
 
-	db, err := sql.Open("postgres", connURL)
+	db, err := sql.Open("pgx", connURL)
 
 	if err != nil {
 		return err

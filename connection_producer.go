@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/vault/sdk/database/helper/dbutil"
 	"github.com/mitchellh/mapstructure"
 
-	_ "github.com/lib/pq"
+	_ "github.com/yugabyte/pgx/v4/stdlib"
 )
 
 // YugabyteConnectionProducer implements ConnectionProducer and provides a generic producer for most yuhgabyte databases
@@ -128,7 +128,7 @@ func (c *YugabyteConnectionProducer) Connection(ctx context.Context) (interface{
 
 	//attempt to make connection
 	var err error
-	c.db, err = sql.Open("postgres", conn)
+	c.db, err = sql.Open("pgx", conn)
 	if err != nil {
 		return nil, err
 	}
