@@ -22,7 +22,7 @@ func PrepareTestContainer(t *testing.T, version string) (func(), string) {
 		ImageRepo:     "yugabytedb/yugabyte",
 		Cmd:           []string{"./bin/yugabyted", "start", "--daemon=false"},
 		ImageTag:      version,
-		Env:           []string{"YSQL_DB=database", "YSQL_PASSWORD=secret", "POSTGRES_DB=database", "POSTGRES_PASSWORD=secret"},
+		Env:           []string{"YSQL_DB=testdb", "YSQL_PASSWORD=testsecret", "POSTGRES_DB=testdb", "POSTGRES_PASSWORD=testsecret"},
 		Ports:         []string{"5433/tcp"},
 		ContainerName: "yugabyte",
 	})
@@ -41,13 +41,15 @@ func PrepareTestContainer(t *testing.T, version string) (func(), string) {
 func connectYugabyte(ctx context.Context, host string, port int) (docker.ServiceConfig, error) {
 	u := url.URL{
 		Scheme:   "postgres",
-		User:     url.UserPassword("yugabyte", "secret"),
+		User:     url.UserPassword("yugabyte", "testsecret"),
 		Host:     fmt.Sprintf("%s:%d", host, port),
 		Path:     "postgres",
 		RawQuery: "sslmode=disable",
 	}
 
-	db, err := sql.Open("pgx", u.String())
+	u_conn := u.String() + "&load_balance=true&yb_servers_refresh_interval=0"
+
+	db, err := sql.Open("pgx", u_conn)
 	if err != nil {
 		return nil, err
 	}

@@ -19,14 +19,10 @@ import (
 )
 
 const (
-	yugabyteDBType             = "yugabyte"
-	defaultExpirationStatement = `
-ALTER ROLE "{{name}}" VALID UNTIL '{{expiration}}';
-`
-	defaultChangePasswordStatement = `
-ALTER ROLE "{{username}}" WITH PASSWORD '{{password}}';
-`
-	expirationFormat = "2006-01-02T15:04:05Z07:00" // "2006-01-02 15:04:05-0700"
+	yugabyteDBType                 = "yugabyte"
+	defaultExpirationStatement     = `ALTER ROLE "{{name}}" VALID UNTIL '{{expiration}}';`
+	defaultChangePasswordStatement = `ALTER ROLE "{{username}}" WITH PASSWORD '{{password}}';`
+	expirationFormat               = "2006-01-02T15:04:05Z07:00" // "2006-01-02 15:04:05-0700"
 
 	defaultUserNameTemplate = `{{ printf "v-%s-%s-%s-%s" (.DisplayName | truncate 8) (.RoleName | truncate 8) (random 20) (unix_time) | truncate 63 }}`
 )
@@ -49,7 +45,7 @@ var (
 )
 
 type ysql struct {
-	YugabyteConnectionProducer
+	*YugabyteConnectionProducer
 	usernameProducer template.StringTemplate
 }
 
@@ -67,8 +63,9 @@ func New() (interface{}, error) {
 var _ dbplugin.Database = (*ysql)(nil)
 
 func new() *ysql {
-	connProducer := YugabyteConnectionProducer{}
-	connProducer.Type = yugabyteDBType
+	conn := YugabyteConnectionProducer{}
+	conn.Type = yugabyteDBType
+	connProducer := &conn
 
 	yugabyte := &ysql{
 		YugabyteConnectionProducer: connProducer,
@@ -366,7 +363,7 @@ func (ydb *ysql) defaultDeleteUser(ctx context.Context, username string) error {
 	// the role
 	// This isn't done in a transaction because even if we fail along the way,
 	// we want to remove as much access as possible
-	stmt, err := db.PrepareContext(ctx, "SELECT DISTINCT table_schema FROM information_schema.role_column_grants WHERE grantee=$1;")
+	stmt, err := db.PrepareContext(ctx, "/*+Set(enable_nestloop false)*/ SELECT DISTINCT table_schema FROM information_schema.role_column_grants WHERE grantee=$1;")
 	if err != nil {
 		return fmt.Errorf("unable to prepare context : %w", err)
 	}

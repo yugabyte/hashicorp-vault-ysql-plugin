@@ -14,17 +14,20 @@ import (
 	_ "github.com/yugabyte/pgx/v4/stdlib"
 )
 
-// YugabyteConnectionProducer implements ConnectionProducer and provides a generic producer for most yuhgabyte databases
+// YugabyteConnectionProducer implements ConnectionProducer and provides a generic producer for most yugabyte databases
 type YugabyteConnectionProducer struct {
-	ConnectionURL            string      `json:"connection_url" mapstructure:"connection_url" structs:"connection_url"`
-	MaxOpenConnections       int         `json:"max_open_connections" mapstructure:"max_open_connections" structs:"max_open_connections"`
-	MaxIdleConnections       int         `json:"max_idle_connections" mapstructure:"max_idle_connections" structs:"max_idle_connections"`
-	MaxConnectionLifetimeRaw interface{} `json:"max_connection_lifetime" mapstructure:"max_connection_lifetime" structs:"max_connection_lifetime"`
-	Host                     string      `json:"host" mapstructure:"host" structs:"host"`
-	Username                 string      `json:"username" mapstructure:"username" structs:"username"`
-	Password                 string      `json:"password" mapstructure:"password" structs:"password"`
-	Port                     int         `json:"port" mapstructure:"port" structs:"port"`
-	DbName                   string      `json:"db" mapstructure:"db" structs:"db"`
+	ConnectionURL               string      `json:"connection_url" mapstructure:"connection_url" structs:"connection_url"`
+	MaxOpenConnections          int         `json:"max_open_connections" mapstructure:"max_open_connections" structs:"max_open_connections"`
+	MaxIdleConnections          int         `json:"max_idle_connections" mapstructure:"max_idle_connections" structs:"max_idle_connections"`
+	MaxConnectionLifetimeRaw    interface{} `json:"max_connection_lifetime" mapstructure:"max_connection_lifetime" structs:"max_connection_lifetime"`
+	Host                        string      `json:"host" mapstructure:"host" structs:"host"`
+	Username                    string      `json:"username" mapstructure:"username" structs:"username"`
+	Password                    string      `json:"password" mapstructure:"password" structs:"password"`
+	Port                        int         `json:"port" mapstructure:"port" structs:"port"`
+	DbName                      string      `json:"db" mapstructure:"db" structs:"db"`
+	Load_balance                bool        `json:"load_balance" mapstructure:"load_balance" structs:"load_balance"`
+	Yb_servers_refresh_interval int         `json:"yb_servers_refresh_interval" mapstructure:"yb_servers_refresh_interval" structs:"yb_servers_refresh_interval"`
+	Topology_keys               string      `json:"topology_keys" mapstructure:"topology_keys" structs:"topology_keys"`
 
 	Type                  string
 	RawConfig             map[string]interface{}
@@ -119,8 +122,14 @@ func (c *YugabyteConnectionProducer) Connection(ctx context.Context) (interface{
 		c.db.Close()
 	}
 
-	conn := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable", c.Host, c.Port, c.Username, c.Password, c.DbName)
+	var conn string
+	if c.Topology_keys != "" {
+		conn = fmt.Sprintf("host=%s port=%d user=%s "+
+			"password=%s dbname=%s sslmode=disable load_balance=%v yb_servers_refresh_interval=%d topology_keys=%s sslmode=disable", c.Host, c.Port, c.Username, c.Password, c.DbName, c.Load_balance, c.Yb_servers_refresh_interval, c.Topology_keys)
+	} else {
+		conn = fmt.Sprintf("host=%s port=%d user=%s "+
+			"password=%s dbname=%s sslmode=disable load_balance=%v yb_servers_refresh_interval=%d ", c.Host, c.Port, c.Username, c.Password, c.DbName, c.Load_balance, c.Yb_servers_refresh_interval)
+	}
 
 	if len(c.ConnectionURL) != 0 {
 		conn = c.ConnectionURL

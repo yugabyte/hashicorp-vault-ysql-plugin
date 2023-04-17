@@ -27,6 +27,7 @@ func getysql(t *testing.T, options map[string]interface{}) (*ysql, func()) {
 
 	cleanup, connURL := ysqlhelper.PrepareTestContainer(t, YBDB_IMAGE)
 
+	connURL = connURL + "&load_balance=true&yb_servers_refresh_interval=0"
 	connectionDetails := map[string]interface{}{
 		"connection_url": connURL,
 	}
@@ -684,7 +685,7 @@ func assertCredsExistAfter(timeout time.Duration) credsAssertion {
 func testCredsExist(t testing.TB, connURL, username, password string) error {
 	t.Helper()
 	// Log in with the new creds
-	connURL = strings.Replace(connURL, "yugabyte:secret", fmt.Sprintf("%s:%s", username, password), 1)
+	connURL = strings.Replace(connURL, "yugabyte:testsecret", fmt.Sprintf("%s:%s", username, password), 1)
 
 	db, err := sql.Open("pgx", connURL)
 
