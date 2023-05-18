@@ -14,18 +14,15 @@ import (
 	"github.com/hashicorp/vault/sdk/helper/dbtxn"
 	"github.com/hashicorp/vault/sdk/helper/strutil"
 	"github.com/hashicorp/vault/sdk/helper/template"
-	"github.com/lib/pq"
+
+	_ "github.com/yugabyte/pgx/v4/stdlib"
 )
 
 const (
-	yugabyteDBType             = "yugabyte"
-	defaultExpirationStatement = `
-ALTER ROLE "{{name}}" VALID UNTIL '{{expiration}}';
-`
-	defaultChangePasswordStatement = `
-ALTER ROLE "{{username}}" WITH PASSWORD '{{password}}';
-`
-	expirationFormat = "2006-01-02T15:04:05Z07:00" // "2006-01-02 15:04:05-0700"
+	yugabyteDBType                 = "yugabyte"
+	defaultExpirationStatement     = `ALTER ROLE "{{name}}" VALID UNTIL '{{expiration}}';`
+	defaultChangePasswordStatement = `ALTER ROLE "{{username}}" WITH PASSWORD '{{password}}';`
+	expirationFormat               = "2006-01-02T15:04:05Z07:00" // "2006-01-02 15:04:05-0700"
 
 	defaultUserNameTemplate = `{{ printf "v-%s-%s-%s-%s" (.DisplayName | truncate 8) (.RoleName | truncate 8) (random 20) (unix_time) | truncate 63 }}`
 )
@@ -48,7 +45,7 @@ var (
 )
 
 type ysql struct {
-	YugabyteConnectionProducer
+	*YugabyteConnectionProducer
 	usernameProducer template.StringTemplate
 }
 
@@ -66,8 +63,9 @@ func New() (interface{}, error) {
 var _ dbplugin.Database = (*ysql)(nil)
 
 func new() *ysql {
-	connProducer := YugabyteConnectionProducer{}
-	connProducer.Type = yugabyteDBType
+	conn := YugabyteConnectionProducer{}
+	conn.Type = yugabyteDBType
+	connProducer := &conn
 
 	yugabyte := &ysql{
 		YugabyteConnectionProducer: connProducer,
@@ -365,7 +363,7 @@ func (ydb *ysql) defaultDeleteUser(ctx context.Context, username string) error {
 	// the role
 	// This isn't done in a transaction because even if we fail along the way,
 	// we want to remove as much access as possible
-	stmt, err := db.PrepareContext(ctx, "SELECT DISTINCT table_schema FROM information_schema.role_column_grants WHERE grantee=$1;")
+	stmt, err := db.PrepareContext(ctx, "/*+Set(enable_nestloop false)*/ SELECT DISTINCT table_schema FROM information_schema.role_column_grants WHERE grantee=$1;")
 	if err != nil {
 		return fmt.Errorf("unable to prepare context : %w", err)
 	}
@@ -389,27 +387,27 @@ func (ydb *ysql) defaultDeleteUser(ctx context.Context, username string) error {
 		}
 		revocationStmts = append(revocationStmts, fmt.Sprintf(
 			`REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA %s FROM %s;`,
-			pq.QuoteIdentifier(schema),
-			pq.QuoteIdentifier(username)))
+			QuoteIdentifier(schema),
+			QuoteIdentifier(username)))
 
 		revocationStmts = append(revocationStmts, fmt.Sprintf(
 			`REVOKE ALL PRIVILEGES  ON SCHEMA %s FROM %s;`,
-			pq.QuoteIdentifier(schema),
-			pq.QuoteIdentifier(username)))
+			QuoteIdentifier(schema),
+			QuoteIdentifier(username)))
 	}
 
 	// for good measure, revoke all privileges and usage on schema public
 	revocationStmts = append(revocationStmts, fmt.Sprintf(
 		`REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM %s;`,
-		pq.QuoteIdentifier(username)))
+		QuoteIdentifier(username)))
 
 	revocationStmts = append(revocationStmts, fmt.Sprintf(
 		"REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM %s;",
-		pq.QuoteIdentifier(username)))
+		QuoteIdentifier(username)))
 
 	revocationStmts = append(revocationStmts, fmt.Sprintf(
 		"REVOKE ALL PRIVILEGES  ON SCHEMA public FROM %s;",
-		pq.QuoteIdentifier(username)))
+		QuoteIdentifier(username)))
 
 	// get the current database name so we can issue a REVOKE CONNECT for
 	// this username
@@ -421,8 +419,8 @@ func (ydb *ysql) defaultDeleteUser(ctx context.Context, username string) error {
 	if dbname.Valid {
 		revocationStmts = append(revocationStmts, fmt.Sprintf(
 			`REVOKE ALL PRIVILEGES ON DATABASE %s FROM %s;`,
-			pq.QuoteIdentifier(dbname.String),
-			pq.QuoteIdentifier(username)))
+			QuoteIdentifier(dbname.String),
+			QuoteIdentifier(username)))
 	}
 
 	// again, here, we do not stop on error, as we want to remove as
@@ -444,7 +442,7 @@ func (ydb *ysql) defaultDeleteUser(ctx context.Context, username string) error {
 
 	// Drop this user
 	stmt, err = db.PrepareContext(ctx, fmt.Sprintf(
-		`DROP ROLE IF EXISTS %s;`, pq.QuoteIdentifier(username)))
+		`DROP ROLE IF EXISTS %s;`, QuoteIdentifier(username)))
 	if err != nil {
 		return err
 	}
@@ -510,4 +508,9 @@ func (db *ysql) getConnection(ctx context.Context) (*sql.DB, error) {
 	}
 
 	return conn.(*sql.DB), nil
+}
+
+func QuoteIdentifier(input string) (output string) {
+	output = `"` + strings.Replace(input, `"`, `""`, -1) + `"`
+	return
 }

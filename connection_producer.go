@@ -11,10 +11,10 @@ import (
 	"github.com/hashicorp/vault/sdk/database/helper/dbutil"
 	"github.com/mitchellh/mapstructure"
 
-	_ "github.com/lib/pq"
+	_ "github.com/yugabyte/pgx/v4/stdlib"
 )
 
-// YugabyteConnectionProducer implements ConnectionProducer and provides a generic producer for most yuhgabyte databases
+// YugabyteConnectionProducer implements ConnectionProducer and provides a generic producer for most yugabyte databases
 type YugabyteConnectionProducer struct {
 	ConnectionURL            string      `json:"connection_url" mapstructure:"connection_url" structs:"connection_url"`
 	MaxOpenConnections       int         `json:"max_open_connections" mapstructure:"max_open_connections" structs:"max_open_connections"`
@@ -25,6 +25,9 @@ type YugabyteConnectionProducer struct {
 	Password                 string      `json:"password" mapstructure:"password" structs:"password"`
 	Port                     int         `json:"port" mapstructure:"port" structs:"port"`
 	DbName                   string      `json:"db" mapstructure:"db" structs:"db"`
+	LoadBalance              bool        `json:"load_balance" mapstructure:"load_balance" structs:"load_balance"`
+	YbServersRefreshInterval int         `json:"yb_servers_refresh_interval" mapstructure:"yb_servers_refresh_interval" structs:"yb_servers_refresh_interval"`
+	TopologyKeys             string      `json:"topology_keys" mapstructure:"topology_keys" structs:"topology_keys"`
 
 	Type                  string
 	RawConfig             map[string]interface{}
@@ -119,8 +122,14 @@ func (c *YugabyteConnectionProducer) Connection(ctx context.Context) (interface{
 		c.db.Close()
 	}
 
-	conn := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable", c.Host, c.Port, c.Username, c.Password, c.DbName)
+	var conn string
+	if c.TopologyKeys != "" {
+		conn = fmt.Sprintf("host=%s port=%d user=%s "+
+			"password=%s dbname=%s sslmode=disable load_balance=%v yb_servers_refresh_interval=%d topology_keys=%s ", c.Host, c.Port, c.Username, c.Password, c.DbName, c.LoadBalance, c.YbServersRefreshInterval, c.TopologyKeys)
+	} else {
+		conn = fmt.Sprintf("host=%s port=%d user=%s "+
+			"password=%s dbname=%s sslmode=disable load_balance=%v yb_servers_refresh_interval=%d ", c.Host, c.Port, c.Username, c.Password, c.DbName, c.LoadBalance, c.YbServersRefreshInterval)
+	}
 
 	if len(c.ConnectionURL) != 0 {
 		conn = c.ConnectionURL
@@ -128,7 +137,7 @@ func (c *YugabyteConnectionProducer) Connection(ctx context.Context) (interface{
 
 	//attempt to make connection
 	var err error
-	c.db, err = sql.Open("postgres", conn)
+	c.db, err = sql.Open("pgx", conn)
 	if err != nil {
 		return nil, err
 	}
