@@ -50,7 +50,7 @@ git clone https://github.com/yugabyte/hashicorp-vault-ysql-plugin   && cd  hashi
 go build -o <build dir>/ysql-plugin  cmd/ysql-plugin/main.go
 ```
 
--   For using the vault in the development mode add the default Vault address and Vault tocken
+-   For using the vault in the development mode add the default Vault address and Vault token
 ```sh
 #   Add the VAULT_ADDR and VAULT_TOKEN
 export VAULT_ADDR="http://localhost:8200"
@@ -61,9 +61,9 @@ export VAULT_TOKEN="root"
 
 -   Run the server in the development mode
     -   For running the vault server in development mode `dev` flag is used.
-    -   The `dev-root-tocken` informs the vault to use the default vault tocken of `root` to login.
-        In case of production mode this tocken is required to be set.   
-        Tocken policies are discussed [here](https://www.vaultproject.io/docs/commands/login).
+    -   The `dev-root-token` informs the vault to use the default vault token of `root` to login.
+        In case of production mode this token is required to be set.   
+        Token policies are discussed [here](https://www.vaultproject.io/docs/commands/login).
     -   While running in the development mode vault will automatically register the plugin if 
         the directory of the binary of the plugin is provided as an input with the dev-plugin-dir flag as shown below.
 ```sh
