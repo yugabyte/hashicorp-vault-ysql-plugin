@@ -20,7 +20,7 @@ A dynamic secret is generated on demand and is unique to a client, instead of a 
 Vault associates each dynamic secret with a lease and automatically destroys the credentials when the lease expires.
 In this example, a client is requesting a database credential. Vault connects to the database with a private, root level credential and creates a new username and password. This new set of credentials are provided back to the client with a lease of 7 days. A week later, Vault will connect to the database with its privileged credentials and delete the newly created username.
 
-Using Dynamic Secrets means we don’t have to be concerned about them having the shared PEM when a developer or operator leaves the organization. It also gives us a better break glass procedure should these credentials leak, as the credentials are localized to an individual resource reducing the attack vector, and the credentials are also issued with a time to live, meaning that Vault will automatically revoke them after a predetermined duration. In addition to this, by leveraging Vault Auth and Dynamic Secrets, you also gain full access logs directly tieing a SSH session to an individual user.
+Using Dynamic Secrets means we don’t have to be concerned about them having the shared PEM when a developer or operator leaves the organization. It also gives us a better break glass procedure should these credentials leak, as the credentials are localized to an individual resource reducing the attack vector, and the credentials are also issued with a time to live, meaning that Vault will automatically revoke them after a predetermined duration. In addition to this, by leveraging Vault Auth and Dynamic Secrets, you also gain full access logs directly tying a SSH session to an individual user.
 
 ![ alt text for screen readers source: HashiCorp](https://www.datocms-assets.com/2885/1519774324-dynamic-secret-img-001.jpeg?fit=max&q=80&w=2500)
 
@@ -31,7 +31,7 @@ Using Dynamic Secrets means we don’t have to be concerned about them having th
     -   To create new users i.e. enabling `write` roles and `read` roles commands for yugabyteDB(ysql) while using vault.
     -   Mangae lease related to the yugabyteDB(ysql) i.e. enabling `lease lookup` , `lease renew` and `lease revoke` for yugabyteDB (ysql) while using vault.
 -   Why seperate plugin for yugabyteDB(ysql):
-   -    Yugabyte go driver can be used for connecting with the database.
+   -    YugabyteDB Go driver can be used for connecting with the database.
         This will allow us to use the added [smart features](https://docs.yugabyte.com/preview/reference/drivers/ysql-client-drivers/#yugabytedb-pgx-smart-driver), providing a high tolerance towards failures.
         
 

@@ -80,7 +80,7 @@ func (db *ysql) Initialize(ctx context.Context, req dbplugin.InitializeRequest) 
 		return dbplugin.InitializeResponse{}, fmt.Errorf("failed to retrieve username_template: %w", err)
 	}
 
-	log.Println("initializing --> ", usernameTemplate)
+	log.Println("Initializing ", usernameTemplate)
 
 	if usernameTemplate == "" {
 		usernameTemplate = defaultUserNameTemplate

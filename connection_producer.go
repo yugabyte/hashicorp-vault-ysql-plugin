@@ -77,7 +77,7 @@ func (c *YugabyteConnectionProducer) Init(ctx context.Context, conf map[string]i
 		return nil, fmt.Errorf("password cannot be empty")
 	}
 
-	// Don't escape special characters for MySQL password
+	// Don't escape special characters for YugabyteDB password
 	// Also don't escape special characters for the username and password if
 	// the disable_escaping parameter is set to true
 	username := c.Username
