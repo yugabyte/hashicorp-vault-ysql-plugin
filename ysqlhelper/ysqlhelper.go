@@ -15,9 +15,9 @@ import (
 func PrepareTestContainer(t *testing.T, version string) (func(), string) {
 
 	if version == "" {
-		version = "2.18.0.0-b65"
+		version = "latest"
 	}
-	fmt.Println("using version", version)
+
 	runner, err := docker.NewServiceRunner(docker.RunOptions{
 		ImageRepo:     "yugabytedb/yugabyte",
 		Cmd:           []string{"./bin/yugabyted", "start", "--daemon=false"},
