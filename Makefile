@@ -1,6 +1,6 @@
 GOARCH = amd64
 
-BUILD_DIR = /home/jayantanand/code/work/hashicorp/plugin_bin
+BUILD_DIR = build/yugabytedb_plugin
 
 UNAME = $(shell uname -s)
 

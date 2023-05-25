@@ -14,8 +14,8 @@ import (
 	_ "github.com/yugabyte/pgx/v4/stdlib"
 )
 
-// YugabyteConnectionProducer implements ConnectionProducer and provides a generic producer for most yugabyte databases
-type YugabyteConnectionProducer struct {
+// YugabyteDBConnectionProducer implements ConnectionProducer and provides a generic producer for most yugabyte databases
+type YugabyteDBConnectionProducer struct {
 	ConnectionURL            string      `json:"connection_url" mapstructure:"connection_url" structs:"connection_url"`
 	MaxOpenConnections       int         `json:"max_open_connections" mapstructure:"max_open_connections" structs:"max_open_connections"`
 	MaxIdleConnections       int         `json:"max_idle_connections" mapstructure:"max_idle_connections" structs:"max_idle_connections"`
@@ -39,12 +39,12 @@ type YugabyteConnectionProducer struct {
 
 var ErrNotInitialized = errors.New("connection has not been initialized")
 
-func (c *YugabyteConnectionProducer) Initialize(ctx context.Context, conf map[string]interface{}, verifyConnection bool) error {
+func (c *YugabyteDBConnectionProducer) Initialize(ctx context.Context, conf map[string]interface{}, verifyConnection bool) error {
 	_, err := c.Init(ctx, conf, verifyConnection)
 	return err
 }
 
-func (c *YugabyteConnectionProducer) Init(ctx context.Context, conf map[string]interface{}, verifyConnection bool) (map[string]interface{}, error) {
+func (c *YugabyteDBConnectionProducer) Init(ctx context.Context, conf map[string]interface{}, verifyConnection bool) (map[string]interface{}, error) {
 	c.Lock()
 	defer c.Unlock()
 
@@ -107,7 +107,7 @@ func (c *YugabyteConnectionProducer) Init(ctx context.Context, conf map[string]i
 	return c.RawConfig, nil
 }
 
-func (c *YugabyteConnectionProducer) Connection(ctx context.Context) (interface{}, error) {
+func (c *YugabyteDBConnectionProducer) Connection(ctx context.Context) (interface{}, error) {
 	if !c.Initialized {
 		return nil, ErrNotInitialized
 	}
@@ -146,7 +146,7 @@ func (c *YugabyteConnectionProducer) Connection(ctx context.Context) (interface{
 }
 
 // Close attempts to close the connection
-func (c *YugabyteConnectionProducer) Close() error {
+func (c *YugabyteDBConnectionProducer) Close() error {
 	// Grab the write lock
 	c.Lock()
 	defer c.Unlock()

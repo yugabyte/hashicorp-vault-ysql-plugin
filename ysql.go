@@ -30,10 +30,10 @@ const (
 var (
 	_ dbplugin.Database = &ysql{}
 
-	// postgresEndStatement is basically the word "END" but
+	// ysqlEndStatement is basically the word "END" but
 	// surrounded by a word boundary to differentiate it from
 	// other words like "APPEND".
-	postgresEndStatement = regexp.MustCompile(`\bEND\b`)
+	ysqlEndStatement = regexp.MustCompile(`\bEND\b`)
 
 	// doubleQuotedPhrases finds substrings like "hello"
 	// and pulls them out with the quotes included.
@@ -45,7 +45,7 @@ var (
 )
 
 type ysql struct {
-	*YugabyteConnectionProducer
+	*YugabyteDBConnectionProducer
 	usernameProducer template.StringTemplate
 }
 
@@ -63,13 +63,13 @@ func New() (interface{}, error) {
 var _ dbplugin.Database = (*ysql)(nil)
 
 func new() *ysql {
-	conn := YugabyteConnectionProducer{}
+	conn := YugabyteDBConnectionProducer{}
 	conn.Type = yugabyteDBType
 	connProducer := &conn
 
 	yugabyte := &ysql{
-		YugabyteConnectionProducer: connProducer,
-		usernameProducer:           template.StringTemplate{},
+		YugabyteDBConnectionProducer: connProducer,
+		usernameProducer:             template.StringTemplate{},
 	}
 	return yugabyte
 }
@@ -97,7 +97,7 @@ func (db *ysql) Initialize(ctx context.Context, req dbplugin.InitializeRequest) 
 		return dbplugin.InitializeResponse{}, fmt.Errorf("invalid username template: %w", err)
 	}
 
-	err = db.YugabyteConnectionProducer.Initialize(ctx, req.Config, req.VerifyConnection)
+	err = db.YugabyteDBConnectionProducer.Initialize(ctx, req.Config, req.VerifyConnection)
 	if err != nil {
 		return dbplugin.InitializeResponse{}, err
 	}
@@ -478,7 +478,7 @@ func containsMultilineStatement(stmt string) bool {
 	// Now look for the word "END" specifically. This will miss any
 	// representations of END that aren't surrounded by spaces, but
 	// it should be easy to change on the user's side.
-	return postgresEndStatement.MatchString(stmtWithoutLiterals)
+	return ysqlEndStatement.MatchString(stmtWithoutLiterals)
 }
 
 // extractQuotedStrings extracts 0 or many substrings

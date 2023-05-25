@@ -15,9 +15,9 @@ import (
 func PrepareTestContainer(t *testing.T, version string) (func(), string) {
 
 	if version == "" {
-		version = "latest"
+		version = "2.18.0.0-b65"
 	}
-
+	fmt.Println("using version", version)
 	runner, err := docker.NewServiceRunner(docker.RunOptions{
 		ImageRepo:     "yugabytedb/yugabyte",
 		Cmd:           []string{"./bin/yugabyted", "start", "--daemon=false"},
@@ -43,7 +43,7 @@ func connectYugabyteDB(ctx context.Context, host string, port int) (docker.Servi
 		Scheme:   "postgres",
 		User:     url.UserPassword("yugabyte", "testsecret"),
 		Host:     fmt.Sprintf("%s:%d", host, port),
-		Path:     "postgres",
+		Path:     "yugabyte",
 		RawQuery: "sslmode=disable",
 	}
 
