@@ -9,7 +9,7 @@ require (
 	github.com/hashicorp/vault/sdk v0.8.1
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/stretchr/testify v1.8.2
-	github.com/yugabyte/pgx/v4 v4.14.5
+	github.com/yugabyte/pgx/v4 v4.14.6
 )
 
 require (
