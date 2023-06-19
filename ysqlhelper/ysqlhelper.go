@@ -1,4 +1,4 @@
-// Copyright (c) YugaByte, Inc.
+// Copyright (c) YugaByteDB, Inc.
 //
 //Licensed to YugabyteDB, Inc. under one or more contributor license agreements.
 //See the NOTICE file distributed with this work for additional information regarding
