@@ -1,9 +1,9 @@
 YugabyteDB Plugin for Hashicorp Vault
 
-Copyright © 2022-2023 YugabyteDB, Inc. All Rights Reserved.
+Copyright © 2022-2023 YugabyteDB, Inc. 
 
-This product is licensed to you under the Apache 2.0 license (the "License"). 
-You may not use this product except in compliance with the Apache 2.0 License.
+This product is licensed to you under the MPL 2.0 license (the "License"). 
+You may not use this product except in compliance with the MPL 2.0 License.
 
 This product may include a number of subcomponents with separate copyright 
 notices and license terms. Your use of these subcomponents is subject to the 
@@ -35,14 +35,14 @@ The following subcomponents are used:
 
 ## github.com/golang/protobuf
 
-* Name: github.com/fatih/color
+* Name: github.com/golang/protobuf
 * Version: v1.5.2
 * License:  [BSD-3-Clause](https://github.com/golang/protobuf/blob/v1.5.2/LICENSE)
 
 
 ## github.com/golang/snappy
 
-* Name: github.com/fatih/color
+* Name: github.com/golang/snappy
 * Version: v0.0.4
 * License:  [BSD-3-Clause](https://github.com/golang/snappy/blob/v0.0.4/LICENSE)
 
@@ -119,7 +119,7 @@ The following subcomponents are used:
 
 ## github.com/hashicorp/go-uuid
 
-* Name: github.com/hashicorp/go-sockaddr
+* Name: github.com/hashicorp/go-uuid
 * Version: v1.0.3
 * License:  [MPL-2.0](https://github.com/hashicorp/go-uuid/blob/v1.0.3/LICENSE)
 
@@ -133,14 +133,14 @@ The following subcomponents are used:
 
 ## github.com/hashicorp/golang-lru
 
-* Name: github.com/hashicorp/go-version
+* Name: github.com/hashicorp/golang-lru
 * Version: v0.5.4
 * License:  [MPL-2.0](https://github.com/hashicorp/golang-lru/blob/v0.5.4/LICENSE)
 
 
 ## github.com/hashicorp/vault/sdk
 
-* Name: github.com/hashicorp/go-version
+* Name: github.com/hashicorp/vault/sdk
 * Version: v0.8.1
 * License:  [MPL-2.0](https://github.com/hashicorp/vault/blob/sdk/v0.8.1/sdk/LICENSE)
 
@@ -266,7 +266,7 @@ The following subcomponents are used:
 
 ## github.com/yugabyte/hashicorp-vault-ysql-plugin
 
-* Name: github.com/ryanuber/go-glob
+* Name: github.com/yugabyte/hashicorp-vault-ysql-plugin
 * Version: Unknown
 * License:  [Apache-2.0](https://github.com/yugabyte/hashicorp-vault-ysql-plugin/blob/HEAD/LICENSE.txt)
 
