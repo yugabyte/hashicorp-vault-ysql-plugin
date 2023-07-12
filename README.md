@@ -132,7 +132,7 @@ vault lease renew   <leaseid>
 ```sh
 vault lease revoke  <leaseid>
 ```
-## Apart form Dynamic roles ysql-plugin also supports [Static roles](https://developer.hashicorp.com/vault/tutorials/db-credentials/database-creds-rotation), [Root credential rotation](https://developer.hashicorp.com/vault/tutorials/db-credentials/database-root-rotation) and [Username customization](https://developer.hashicorp.com/vault/tutorials/secrets-management/username-templating).
+## Apart from Dynamic roles ysql-plugin also supports [Static roles](https://developer.hashicorp.com/vault/tutorials/db-credentials/database-creds-rotation), [Root credential rotation](https://developer.hashicorp.com/vault/tutorials/db-credentials/database-root-rotation) and [Username customization](https://developer.hashicorp.com/vault/tutorials/secrets-management/username-templating).
 
 ##  For testing:
 go test can be used for testing the ysql-plugin
