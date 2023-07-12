@@ -24,18 +24,18 @@ Using Dynamic Secrets means we don’t have to be concerned about them having th
 
 ![ alt text for screen readers source: HashiCorp](https://www.datocms-assets.com/2885/1519774324-dynamic-secret-img-001.jpeg?fit=max&q=80&w=2500)
 
-##  Ysql-plugin for Hashicorp Vault:
+###  Ysql-plugin for Hashicorp Vault:
 -   ysql-plugin provides APIs for using the HashiCorp Vault's Dynamic Secrets for the yugabyteDB.
 -   The APIs that can be used are as follows:  
     -   Add yugabyteDB to the manage secrets i.e. enabling `write database` for yugabyteDB(ysql) while using vault.
     -   To create new users i.e. enabling `write` roles and `read` roles commands for yugabyteDB(ysql) while using vault.
     -   Mangae lease related to the yugabyteDB(ysql) i.e. enabling `lease lookup` , `lease renew` and `lease revoke` for yugabyteDB (ysql) while using vault.
 -   Why seperate plugin for yugabyteDB(ysql):
-   -    YugabyteDB Go driver can be used for connecting with the database.
-        This will allow us to use the added [smart features](https://docs.yugabyte.com/preview/reference/drivers/ysql-client-drivers/#yugabytedb-pgx-smart-driver), providing a high tolerance towards failures.
+    -   YugabyteDB Go driver can be used for connecting with the database.
+  This will allow us to use the added [smart features](https://docs.yugabyte.com/preview/reference/drivers/ysql-client-drivers/#yugabytedb-pgx-smart-driver), providing a high tolerance towards failures.
         
 
-##  Before using the vault follow the below steps:
+###  Before using the vault follow the below steps:
 -   Make sure that the go is added to the path
 ```sh
 export GOPATH=$HOME/go
@@ -43,11 +43,11 @@ export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 ```
 -   Clone and go to the database plugin directory
 ```sh 
-git clone https://github.com/yugabyte/hashicorp-vault-ysql-plugin   && cd  hashicorp-vault-ysql-plugin  
+git clone https://github.com/yugabyte/hashicorp-vault-ysql-plugin && cd hashicorp-vault-ysql-plugin  
 ```
 -   Build the the plugin
 ```sh
-go build -o <build dir>/ysql-plugin  cmd/ysql-plugin/main.go
+go build -o <build dir>/ysql-plugin cmd/ysql-plugin/main.go
 ```
 
 -   For using the vault in the development mode add the default Vault address and Vault token
@@ -57,9 +57,9 @@ export VAULT_ADDR="http://localhost:8200"
 export VAULT_TOKEN="root"
 ```
 
-##  Using Vault
+###  Using Vault
 
--   Run the server in the development mode
+-   Running the server in the development mode
     -   For running the vault server in development mode `dev` flag is used.
     -   The `dev-root-token` informs the vault to use the default vault token of `root` to login.
         In case of production mode this token is required to be set.   
@@ -110,7 +110,7 @@ password="yugabyte"
 ```sh
 vault write database/roles/my-first-role \
 db_name=yugabytedb \
-creation_statements="CREATE ROLE \"{{username}}\" WITH PASSWORD '{{password}}' NOINHERIT LOGIN; \
+creation_statements="CREATE ROLE \"{{username}}\" WITH PASSWORD '{{password}}' VALID UNTIL '{{expiration}}' NOINHERIT LOGIN; \
     GRANT ALL ON DATABASE \"yugabyte\" TO \"{{username}}\";" \
 default_ttl="1h" \
 max_ttl="24h"
@@ -132,6 +132,7 @@ vault lease renew   <leaseid>
 ```sh
 vault lease revoke  <leaseid>
 ```
+## Apart form Dynamic roles ysql-plugin also supports [Static roles](https://developer.hashicorp.com/vault/tutorials/db-credentials/database-creds-rotation), [Root credential rotation](https://developer.hashicorp.com/vault/tutorials/db-credentials/database-root-rotation) and [Username customization](https://developer.hashicorp.com/vault/tutorials/secrets-management/username-templating).
 
 ##  For testing:
 go test can be used for testing the ysql-plugin
@@ -148,7 +149,7 @@ For individual cases
 -   For Delete User:
     `go test -run ^TestDeleteUser$ github.com/yugabyte/hashicorp-vault-ysql-plugin`
 
-### How to use the Makefile:
+## How to use the Makefile:
 -   Set the BUILD_DIR in the Makefile
 -   For building the plugin, registering it and running it in development mode use `make`.
 -   For enabling the plugin and creating a basic role named 'my-first-role' use `make enable`.
