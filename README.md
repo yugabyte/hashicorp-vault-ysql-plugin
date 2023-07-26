@@ -41,9 +41,9 @@ Using Dynamic Secrets means we don’t have to be concerned about them having th
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 ```
--   Get the plugin binary :
+-   Get the plugin binary:
 
-    -   One can either Clone and Build :
+    -   One can clone and build:
       
         -   Clone and go to the database plugin directory
           
@@ -56,7 +56,7 @@ export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
         go build -o <build dir>/ysql-plugin cmd/ysql-plugin/main.go
         ```
 
-    -    or Download the Binary directly : 
+    -    Alternatively, download the binary directly from GitHub: 
  
          -    Pre-built binary can be found at the [releases page](https://github.com/yugabyte/hashicorp-vault-ysql-plugin/releases), download the binary in \<build dir\>.
 
