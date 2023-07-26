@@ -1,4 +1,4 @@
-#   Ysql plugin for Hashicorp Vault 
+#   YSQL plugin for Hashicorp Vault 
 ##  About YugabyteDB:
 YugabyteDB is a high-performance, cloud-native distributed SQL database that aims to support all PostgreSQL features. It is best to fit for cloud-native OLTP (i.e. real-time, business-critical) applications that need absolute data correctness and require at least one of the following: scalability, high tolerance to failures, or globally-distributed deployments.
 
@@ -41,15 +41,33 @@ Using Dynamic Secrets means we don’t have to be concerned about them having th
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 ```
--   Clone and go to the database plugin directory
-```sh 
-git clone https://github.com/yugabyte/hashicorp-vault-ysql-plugin && cd hashicorp-vault-ysql-plugin  
-```
--   Build the the plugin
-```sh
-go build -o <build dir>/ysql-plugin cmd/ysql-plugin/main.go
-```
+-   Get the plugin binary:
 
+    -   One can clone and build:
+      
+        -   Clone and go to the database plugin directory
+          
+        ```sh 
+        git clone https://github.com/yugabyte/hashicorp-vault-ysql-plugin && cd hashicorp-vault-ysql-plugin  
+        ```
+        -   Build the plugin
+          
+        ```sh
+        go build -o <build dir>/ysql-plugin cmd/ysql-plugin/main.go
+        ```
+
+    -    Alternatively, download the binary directly from GitHub: 
+ 
+         -    Pre-built binary can be found at the [releases page](https://github.com/yugabyte/hashicorp-vault-ysql-plugin/releases), download the binary in \<build dir\>.
+
+-   For production mode register the plugin:
+```sh
+export SHA256=$(sha256sum <build dir>/ysql-plugin  | cut -d' ' -f1)
+
+vault write sys/plugins/catalog/database/ysql-plugin \
+    sha256=$SHA256 \
+    command="ysql-plugin"
+```
 -   For using the vault in the development mode add the default Vault address and Vault token
 ```sh
 #   Add the VAULT_ADDR and VAULT_TOKEN
@@ -73,14 +91,6 @@ vault server -dev -dev-root-token-id=root -dev-plugin-dir=<build dir>
 -   Enable the database's secrets:
 ```sh
 vault secrets enable database
-```
--   For production mode register the plugin:
-```sh
-export SHA256=$(sha256sum <build dir>/ysql-plugin  | cut -d' ' -f1)
-
-vault write sys/plugins/catalog/database/ysql-plugin \
-    sha256=$SHA256 \
-    command="ysql-plugin"
 ```
 -   Add the database
 
