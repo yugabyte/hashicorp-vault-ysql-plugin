@@ -27,7 +27,7 @@ import (
 	"github.com/hashicorp/vault/sdk/helper/strutil"
 	"github.com/hashicorp/vault/sdk/helper/template"
 
-	_ "github.com/yugabyte/pgx/v4/stdlib"
+	_ "github.com/yugabyte/pgx/v5/stdlib"
 )
 
 const (
