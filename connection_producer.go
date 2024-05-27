@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/vault/sdk/database/helper/dbutil"
 	"github.com/mitchellh/mapstructure"
 
-	_ "github.com/yugabyte/pgx/v4/stdlib"
+	_ "github.com/yugabyte/pgx/v5/stdlib"
 )
 
 // YugabyteDBConnectionProducer implements ConnectionProducer and provides a generic producer for most yugabyte databases

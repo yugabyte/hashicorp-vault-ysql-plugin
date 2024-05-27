@@ -21,7 +21,7 @@ import (
 
 	"github.com/hashicorp/vault/helper/testhelpers/docker"
 
-	_ "github.com/yugabyte/pgx/v4/stdlib"
+	_ "github.com/yugabyte/pgx/v5/stdlib"
 )
 
 func PrepareTestContainer(t *testing.T, version string) (func(), string) {

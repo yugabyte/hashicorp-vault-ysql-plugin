@@ -28,7 +28,7 @@ import (
 	"github.com/hashicorp/vault/sdk/helper/template"
 	"github.com/stretchr/testify/require"
 
-	_ "github.com/yugabyte/pgx/v4/stdlib"
+	_ "github.com/yugabyte/pgx/v5/stdlib"
 )
 
 func getysql(t *testing.T, options map[string]interface{}) (*ysql, func()) {
