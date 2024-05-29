@@ -19,7 +19,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/hashicorp/vault/helper/testhelpers/docker"
+	"github.com/hashicorp/vault/sdk/helper/docker"
 
 	_ "github.com/yugabyte/pgx/v5/stdlib"
 )
