@@ -58,7 +58,7 @@ export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 
     -    Alternatively, download the binary directly from GitHub: 
  
-         -    Pre-built binary can be found at the [releases page](https://github.com/yugabyte/hashicorp-vault-ysql-plugin/releases), download the binary in \<build dir\>.
+         -    Pre-built binary can be found at the [releases page](https://github.com/yugabyte/hashicorp-vault-ysql-plugin/releases). Download, unzip the file and place the binary `ysql-plugin` in \<build dir\>.
 
 -   For production mode register the plugin:
 ```sh
