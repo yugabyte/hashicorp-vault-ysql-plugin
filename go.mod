@@ -1,15 +1,16 @@
 module github.com/yugabyte/hashicorp-vault-ysql-plugin
 
-go 1.20
+go 1.21
+
+toolchain go1.22.1
 
 require (
 	github.com/hashicorp/go-multierror v1.1.1
-	github.com/hashicorp/vault v1.16.2
 	github.com/hashicorp/vault/api v1.12.0
 	github.com/hashicorp/vault/sdk v0.11.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/stretchr/testify v1.9.0
-	github.com/yugabyte/pgx/v5 v5.5.3-yb-2
+	github.com/yugabyte/pgx/v5 v5.5.3-yb-3
 )
 
 require (
