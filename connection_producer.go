@@ -141,10 +141,6 @@ func (c *YugabyteDBConnectionProducer) Connection(ctx context.Context) (interfac
 		c.SslRootCert = ""
 	}
 
-	if c.SslMode != "verify-full" && c.SslMode != "verify-ca" {
-		c.SslRootCert = ""
-	}
-
 	var conn string
 	if c.TopologyKeys != "" {
 		conn = fmt.Sprintf("host=%s port=%d user=%s "+
