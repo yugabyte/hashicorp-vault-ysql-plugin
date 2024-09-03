@@ -40,6 +40,8 @@ type YugabyteDBConnectionProducer struct {
 	LoadBalance              bool        `json:"load_balance" mapstructure:"load_balance" structs:"load_balance"`
 	YbServersRefreshInterval int         `json:"yb_servers_refresh_interval" mapstructure:"yb_servers_refresh_interval" structs:"yb_servers_refresh_interval"`
 	TopologyKeys             string      `json:"topology_keys" mapstructure:"topology_keys" structs:"topology_keys"`
+	SslMode                  string      `json:"sslmode" mapstructure:"sslmode" structs:"sslmode"`
+	SslRootCert              string      `json:"sslrootcert" mapstructure:"sslrootcert" structs:"sslrootcert"`
 
 	Type                  string
 	RawConfig             map[string]interface{}
@@ -134,13 +136,22 @@ func (c *YugabyteDBConnectionProducer) Connection(ctx context.Context) (interfac
 		c.db.Close()
 	}
 
+	if c.SslMode == "" {
+		c.SslMode = "disable"
+		c.SslRootCert = ""
+	}
+
+	if c.SslMode != "verify-full" && c.SslMode != "verify-ca" {
+		c.SslRootCert = ""
+	}
+
 	var conn string
 	if c.TopologyKeys != "" {
 		conn = fmt.Sprintf("host=%s port=%d user=%s "+
-			"password=%s dbname=%s sslmode=disable load_balance=%v yb_servers_refresh_interval=%d topology_keys=%s ", c.Host, c.Port, c.Username, c.Password, c.DbName, c.LoadBalance, c.YbServersRefreshInterval, c.TopologyKeys)
+			"password=%s dbname=%s sslmode=%s sslrootcert=%s load_balance=%v yb_servers_refresh_interval=%d topology_keys=%s ", c.Host, c.Port, c.Username, c.Password, c.DbName, c.SslMode, c.SslRootCert, c.LoadBalance, c.YbServersRefreshInterval, c.TopologyKeys)
 	} else {
 		conn = fmt.Sprintf("host=%s port=%d user=%s "+
-			"password=%s dbname=%s sslmode=disable load_balance=%v yb_servers_refresh_interval=%d ", c.Host, c.Port, c.Username, c.Password, c.DbName, c.LoadBalance, c.YbServersRefreshInterval)
+			"password=%s dbname=%s sslmode=%s sslrootcert=%s load_balance=%v yb_servers_refresh_interval=%d ", c.Host, c.Port, c.Username, c.Password, c.DbName, c.SslMode, c.SslRootCert, c.LoadBalance, c.YbServersRefreshInterval)
 	}
 
 	if len(c.ConnectionURL) != 0 {
