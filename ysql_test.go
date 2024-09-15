@@ -440,6 +440,7 @@ func TestUpdateUser_Expiration(t *testing.T) {
 	// Shared test container for speed - there should not be any overlap between the tests
 	db, cleanup := getysql(t, nil)
 	defer cleanup()
+	db.db.SetMaxOpenConns(1)
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {

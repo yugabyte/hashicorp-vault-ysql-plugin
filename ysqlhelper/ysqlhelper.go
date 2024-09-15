@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"net/url"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/vault/sdk/helper/docker"
 
@@ -51,6 +52,8 @@ func PrepareTestContainer(t *testing.T, version string) (func(), string) {
 }
 
 func connectYugabyteDB(ctx context.Context, host string, port int) (docker.ServiceConfig, error) {
+	fmt.Println("Waiting for container to be up...")
+	time.Sleep(30 * time.Second)
 	u := url.URL{
 		Scheme:   "postgres",
 		User:     url.UserPassword("yugabyte", "testsecret"),
