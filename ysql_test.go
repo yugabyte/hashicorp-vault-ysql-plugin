@@ -533,7 +533,7 @@ func getExpiration(t testing.TB, db *ysql, username string) time.Time {
 		return time.Time{} // No expiration
 	}
 
-	exp, err := time.Parse("2006-01-02 15:04:05Z07", rawExp) //time.RFC3339
+	exp, err := time.Parse(time.RFC3339, rawExp) //time.RFC3339
 	if err != nil {
 		t.Fatalf("Failed to parse expiration %q: %s", rawExp, err)
 	}
