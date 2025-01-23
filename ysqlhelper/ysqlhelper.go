@@ -33,7 +33,7 @@ func PrepareTestContainer(t *testing.T, version string) (func(), string) {
 
 	runner, err := docker.NewServiceRunner(docker.RunOptions{
 		ImageRepo:     "yugabytedb/yugabyte",
-		Cmd:           []string{"./bin/yugabyted", "start", "--daemon=false"},
+		Cmd:           []string{"bash", "-c", "CONTAINER_IP=$(hostname -I | awk '{print $1}') && ./bin/yugabyted start --advertise_address=$CONTAINER_IP --background=false"},
 		ImageTag:      version,
 		Env:           []string{"YSQL_DB=testdb", "YSQL_PASSWORD=testsecret", "POSTGRES_DB=testdb", "POSTGRES_PASSWORD=testsecret"},
 		Ports:         []string{"5433/tcp"},
