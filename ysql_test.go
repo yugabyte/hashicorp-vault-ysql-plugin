@@ -61,6 +61,25 @@ func getysql(t *testing.T, options map[string]interface{}) (*ysql, func()) {
 	return db, cleanup
 }
 
+func getVersion(t *testing.T, db *ysql) string {
+
+	rows := db.db.QueryRow("select version()")
+
+	var version string
+	err := rows.Scan(&version)
+	if err != nil {
+		t.Fatalf("Unable to get database version: %s", err)
+	}
+
+	if strings.Contains(version, "PostgreSQL 11") {
+		version = "11"
+	} else {
+		version = "15"
+	}
+
+	return version
+}
+
 func TestYsql_Initialize(t *testing.T) {
 	db, cleanup := getysql(t, map[string]interface{}{
 		"max_open_connections": 5,
@@ -441,6 +460,7 @@ func TestUpdateUser_Expiration(t *testing.T) {
 	db, cleanup := getysql(t, nil)
 	defer cleanup()
 	db.db.SetMaxOpenConns(1)
+	version := getVersion(t, db)
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
@@ -461,7 +481,7 @@ func TestUpdateUser_Expiration(t *testing.T) {
 
 			assertCredsExist(t, db.ConnectionURL, createResp.Username, password)
 
-			actualExpiration := getExpiration(t, db, createResp.Username)
+			actualExpiration := getExpiration(t, db, createResp.Username, version)
 			if actualExpiration.IsZero() {
 				t.Fatalf("Initial expiration is zero but should be set")
 			}
@@ -491,7 +511,7 @@ func TestUpdateUser_Expiration(t *testing.T) {
 			}
 
 			expectedExpiration := test.expectedExpiration.Truncate(time.Second)
-			actualExpiration = getExpiration(t, db, createResp.Username)
+			actualExpiration = getExpiration(t, db, createResp.Username, version)
 			if !actualExpiration.Equal(expectedExpiration) {
 				t.Fatalf("Actual expiration: %s Expected expiration: %s", actualExpiration, expectedExpiration)
 			}
@@ -499,7 +519,7 @@ func TestUpdateUser_Expiration(t *testing.T) {
 	}
 }
 
-func getExpiration(t testing.TB, db *ysql, username string) time.Time {
+func getExpiration(t testing.TB, db *ysql, username string, version string) time.Time {
 	t.Helper()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -533,7 +553,12 @@ func getExpiration(t testing.TB, db *ysql, username string) time.Time {
 		return time.Time{} // No expiration
 	}
 
-	exp, err := time.Parse("2006-01-02 15:04:05Z07", rawExp) //time.RFC3339
+	var exp time.Time
+	if version == "15" {
+		exp, err = time.Parse(time.RFC3339, rawExp)
+	} else {
+		exp, err = time.Parse("2006-01-02 15:04:05Z07", rawExp)
+	}
 	if err != nil {
 		t.Fatalf("Failed to parse expiration %q: %s", rawExp, err)
 	}
