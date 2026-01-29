@@ -154,23 +154,23 @@ func (c *YugabyteDBConnectionProducer) Connection(ctx context.Context) (interfac
 	}
 
 	if c.SslRootCert != "" {
-		conn = fmt.Sprintf(conn + fmt.Sprintf("sslrootcert=%s ", c.SslRootCert))
+		conn += fmt.Sprintf("sslrootcert=%s ", c.SslRootCert)
 	}
 
 	if c.SslCert != "" {
-		conn = fmt.Sprintf(conn + fmt.Sprintf("sslcert=%s ", c.SslCert))
+		conn += fmt.Sprintf("sslcert=%s  ", c.SslCert)
 	}
 
 	if c.SslKey != "" {
-		conn = fmt.Sprintf(conn + fmt.Sprintf("sslkey=%s ", c.SslKey))
+		conn += fmt.Sprintf("sslkey=%s ", c.SslKey)
 	}
 
 	if c.SslPassword != "" {
-		conn = fmt.Sprintf(conn + fmt.Sprintf("sslpassword=%s ", c.SslPassword))
+		conn += fmt.Sprintf("sslpassword=%s ", c.SslPassword)
 	}
 
 	if c.SslSni != "" {
-		conn = fmt.Sprintf(conn + fmt.Sprintf("sslsni=%s", c.SslSni))
+		conn += fmt.Sprintf("sslsni=%s", c.SslSni)
 	}
 
 	if len(c.ConnectionURL) != 0 {
